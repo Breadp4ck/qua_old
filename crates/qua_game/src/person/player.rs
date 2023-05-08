@@ -1,5 +1,5 @@
 use super::{PersonName, Personality};
-use crate::scores::{Scores, self};
+use crate::scores::Scores;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Serialize, Deserialize)]

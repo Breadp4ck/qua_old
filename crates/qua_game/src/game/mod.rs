@@ -1,25 +1,34 @@
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::time::{Duration, Instant};
 
 use crate::package::prelude::*;
 use crate::person::prelude::*;
 use crate::person::*;
 use crate::scores::Scores;
 
-mod answering_game_state;
-mod asking_game_state;
+mod board_game_state;
+mod greet_game_state;
 mod init_game_state;
 mod overview_game_state;
-mod show_answer_game_state;
-mod waiting_answer_game_state;
+mod question_answer_game_state;
+mod question_appearance_game_state;
+mod question_asking_game_state;
+mod question_matter_game_state;
+mod question_qua_answering_game_state;
+mod question_qua_queue_game_state;
+mod question_qua_waiting_game_state;
 
-// pub enum BoardState {
-//     RoundOverview,
-//     QuestionAsking,
-//     QuestionWaiting,
-//     QuestionAnswering(Option<PlayerName>),
-//     QuestionShowingAnswer,
-// }
+use board_game_state::*;
+use greet_game_state::*;
+use init_game_state::*;
+use overview_game_state::*;
+use question_answer_game_state::*;
+use question_appearance_game_state::*;
+use question_asking_game_state::*;
+use question_matter_game_state::*;
+use question_qua_answering_game_state::*;
+use question_qua_queue_game_state::*;
+use question_qua_waiting_game_state::*;
 
 #[derive(PartialEq)]
 pub enum EmiterType {
@@ -28,69 +37,121 @@ pub enum EmiterType {
     Player,
 }
 
+#[derive(Serialize, Deserialize)]
 pub enum Round {
     Default(RoundIndex),
     Final,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub enum Question {
     Final(QuestionIndex),
     Normal(RoundIndex, ThemeIndex, QuestionIndex),
 }
 
-pub trait GameState {
-    fn tick(&mut self, delta: Duration) -> (Option<Box<dyn GameState>>, Option<GameEvent>);
-    fn handle(
-        &mut self,
-        emiter: EmiterType,
-        action: GameAction,
-    ) -> (Option<Box<dyn GameState>>, Option<GameEvent>);
+#[derive(Serialize, Deserialize)]
+pub enum GameEventLocal {
+    Begin,
+    SelectQuestion(Question),
+    Answer,
+    Score,
+    Skip,
+    Timeout,
 }
 
-pub enum GameAction {
-    Begin {},
-    Select { question: Question },
-    Answer { player_name: PersonName },
-    ScoreAnswer { correct: bool },
+#[derive(Serialize, Deserialize)]
+pub enum GameEventGlobal {
+    AssignLeadPlayer(PersonName),
+    GivePlayerScores(PersonName, Scores),
+    TakePlayerScores(PersonName, Scores),
+    SetPlayerScores(PersonName, Scores),
+    KickPlayer(PersonName),
 }
 
+#[derive(Serialize, Deserialize)]
 pub enum GameEvent {
-    CountCorrectAnswer { to: PersonName, amount: Scores },
-    CountWrongAnswer { to: PersonName, amount: Scores },
-    WaitAnswerTimeout { question: Question },
+    Local(GameEventLocal),
+    Global(GameEventGlobal),
 }
 
-pub enum HostAction {
-    MakeLead { who: PersonName },
-    AddScores { to: PersonName, amount: Scores },
-    RemoveScores { to: PersonName, amount: Scores },
-    SetScores { to: PersonName, amount: Scores },
-    Kick { who: PersonName },
+trait GameStateInteraction {
+    fn handle_event(
+        &mut self,
+        context: &mut GameContext,
+        event: GameEventLocal,
+        author: &mut Person,
+    ) -> Option<GameState>;
+}
+
+pub enum GameState {
+    Init(InitGameState),
+    Greet(GreetGameState),
+    Overview(OverviewGameState),
+    Board(BoardGameState),
+    QuestionAppearance(QuestionAppearanceGameState),
+    QuestionMatter(QuestionMatterGameState),
+    QuestionAsking(QuestionAskingGameState),
+    QuestionQuaWaiting(QuestionQuaWaitingGameState),
+    QuestionQuaQueue(QuestionQuaQueueGameState),
+    QuestionQuaAnswering(QuestionQuaAnsweringGameState),
+    QuestionAnswer(QuestionAnswerGameState),
+}
+
+impl GameState {
+    fn handle_event(
+        &mut self,
+        context: &mut GameContext,
+        event: GameEventLocal,
+        author: &mut Person,
+    ) -> Option<Self> {
+        match self {
+            GameState::Init(state) => state.handle_event(context, event, author),
+            GameState::Greet(state) => state.handle_event(context, event, author),
+            GameState::Overview(state) => state.handle_event(context, event, author),
+            GameState::Board(state) => state.handle_event(context, event, author),
+            GameState::QuestionAppearance(state) => state.handle_event(context, event, author),
+            GameState::QuestionMatter(state) => state.handle_event(context, event, author),
+            GameState::QuestionAsking(state) => state.handle_event(context, event, author),
+            GameState::QuestionQuaWaiting(state) => state.handle_event(context, event, author),
+            GameState::QuestionQuaQueue(state) => state.handle_event(context, event, author),
+            GameState::QuestionQuaAnswering(state) => state.handle_event(context, event, author),
+            GameState::QuestionAnswer(state) => state.handle_event(context, event, author),
+        }
+    }
+}
+
+pub struct GameContext {
+    pub round: Round,
+    pub lead_player: Option<PersonName>,
+    pub question: Option<Question>,
+}
+
+impl Default for GameContext {
+    fn default() -> Self {
+        Self {
+            round: Round::Default(0.into()),
+            lead_player: None,
+            question: None,
+        }
+    }
 }
 
 pub struct Game {
     package: Package,
-    round: Round,
-    // state: Box<dyn GameState>,
-    question: Option<Question>,
+    state: GameState,
     host: Option<Host>,
-    lead_player: Option<PersonName>,
     players: HashMap<PersonName, Player>,
-    previous_moment: Instant,
+    context: GameContext,
 }
 
 impl Game {
     pub fn new(package: Package) -> Self {
         Game {
             package,
-            round: Round::Default(RoundIndex::first()),
-            // state: Box::new(init_game_state::InitGameState::default()),
-            question: None,
+            state: GameState::Init(InitGameState::default()),
             host: None,
-            lead_player: None,
             players: HashMap::new(),
-            previous_moment: Instant::now(),
+            context: GameContext::default(),
         }
     }
 
@@ -102,60 +163,22 @@ impl Game {
         self.players.insert(player.name().clone(), player);
     }
 
-    pub fn kick_player(&mut self, name: PersonName) {
+    pub fn remove_player(&mut self, name: PersonName) {
         self.players.remove(&name);
     }
 
-    pub fn handle_action(&mut self, author: PersonName, action: GameAction) {
-        // let mut emiter = EmiterType::Player;
-
-        // if let Some(lead_player) = self.lead_player.take() {
-        //     if lead_player == author {
-        //         emiter = EmiterType::Lead;
-        //     }
-        // }
-
-        // let (maybe_new_state, maybe_event) = self.state.handle(emiter, action);
-
-        // if let Some(event) = maybe_event {
-        //     self.handle_event(event);
-        // }
-
-        // if let Some(new_state) = maybe_new_state {
-        //     self.state = new_state;
-        // }
-    }
-
-    pub fn handle_event(&mut self, event: GameEvent) {
+    pub fn handle_event(&mut self, event: GameEvent, author: &mut Person) {
         match event {
-            GameEvent::CountCorrectAnswer { to, amount } => {
-                self.lead_player = Some(to.clone());
-                self.players.get_mut(&to).unwrap().add_scores(amount)
+            GameEvent::Local(event) => {
+                self.state.handle_event(&mut self.context, event, author);
             }
-            GameEvent::CountWrongAnswer { to, amount } => {
-                self.players.get_mut(&to).unwrap().remove_scores(amount)
-            }
-            GameEvent::WaitAnswerTimeout { question } => {
-                self.package.mark_answered(&question);
+            GameEvent::Global(event) => {
+                self.handle_global_event(event, author);
             }
         }
     }
 
-    pub fn handle_host_action(&mut self, action: HostAction) {
-        match action {
-            HostAction::AddScores { to, amount } => {
-                self.players.get_mut(&to).unwrap().add_scores(amount)
-            }
-            HostAction::RemoveScores { to, amount } => {
-                self.players.get_mut(&to).unwrap().remove_scores(amount)
-            }
-            HostAction::SetScores { to, amount } => {
-                self.players.get_mut(&to).unwrap().set_scores(amount)
-            }
-            HostAction::MakeLead { who } => self.lead_player = Some(who.clone()),
-            _ => (),
-        }
-    }
+    fn handle_global_event(&mut self, _event: GameEventGlobal, _author: &mut Person) {}
 }
 
 pub mod prelude {

@@ -1,10 +1,12 @@
+use serde::{Deserialize, Serialize};
+
 use super::theme::Theme;
 
 pub struct Round {
     pub themes: Vec<Theme>,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct RoundIndex {
     index: usize,
 }

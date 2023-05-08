@@ -1,10 +1,12 @@
+use serde::{Serialize, Deserialize};
+
 use super::question::Question;
 
 pub struct Theme {
     pub questions: Vec<Question>,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct ThemeIndex {
     index: usize,
 }

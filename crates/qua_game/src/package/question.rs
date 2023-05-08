@@ -1,4 +1,6 @@
-use crate::{scores::Scores, person::PersonName};
+use serde::{Deserialize, Serialize};
+
+use crate::{person::PersonName, scores::Scores};
 
 pub struct Question {
     pub answered: bool,
@@ -6,7 +8,7 @@ pub struct Question {
     pub cost: Scores,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct QuestionIndex {
     index: usize,
 }

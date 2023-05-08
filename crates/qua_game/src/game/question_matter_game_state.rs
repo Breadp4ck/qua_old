@@ -1,9 +1,9 @@
 use super::*;
 
 #[derive(Default)]
-pub struct OverviewGameState;
+pub struct QuestionMatterGameState;
 
-impl GameStateInteraction for OverviewGameState {
+impl GameStateInteraction for QuestionMatterGameState {
     fn handle_event(
         &mut self,
         context: &mut GameContext,
@@ -11,7 +11,7 @@ impl GameStateInteraction for OverviewGameState {
         author: &mut Person,
     ) -> Option<GameState> {
         match event {
-            GameEventLocal::Timeout => Some(GameState::Board(BoardGameState::default())),
+            GameEventLocal::Timeout => Some(GameState::Overview(OverviewGameState::default())),
             _ => None,
         }
     }
