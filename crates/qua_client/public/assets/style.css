@@ -1,0 +1,208 @@
+:root {
+    --primary-color: #00ff64;
+    --primary-soft-color: #15df64;
+    --primary-dark-color: #3bbc6e;
+    --accent-color: #ff009b;
+    --accent-soft-color: #df1590;
+    --accent-dark-color: #bc3b89;
+
+    --neutral-light-color: #888;
+    --neutral-dark-color: #555;
+    --contrast-light-color: white;
+    --contrast-dark-color: black;
+
+    --main-font-name: "Helvetica";
+    --accent-font-name: "Xolonium";
+
+    --default-light-border: 4px solid var(--contrast-light-color);
+    --default-dark-border: 4px solid var(--contrast-dark-color);
+
+    --default-border-radius: 60px;
+    --half-border-radius: 30px;
+}
+
+.bg-1 {
+    background-color: #3bbc6e;
+    opacity: 1;
+    background: radial-gradient(circle, transparent 20%, #3bbc6e 20%, #3bbc6e 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, #3bbc6e 20%, #3bbc6e 80%, transparent 80%, transparent) 42.5px 42.5px, linear-gradient(#00ff64 3.4000000000000004px, transparent 3.4000000000000004px) 0 -1.7000000000000002px, linear-gradient(90deg, #00ff64 3.4000000000000004px, #3bbc6e 3.4000000000000004px) -1.7000000000000002px 0;
+    background-size: 85px 85px, 85px 85px, 42.5px 42.5px, 42.5px 42.5px;
+}
+
+@font-face {
+    font-family: Xolonium;
+    src: url(fonts/Xolonium-Regular.ttf);
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+
+    font-family: var(--main-font-name);
+
+    background-color: #3bbc6e;
+    opacity: 1;
+    background: radial-gradient(circle, transparent 20%, #3bbc6e 20%, #3bbc6e 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, #3bbc6e 20%, #3bbc6e 80%, transparent 80%, transparent) 42.5px 42.5px, linear-gradient(#00ff64 3.4000000000000004px, transparent 3.4000000000000004px) 0 -1.7000000000000002px, linear-gradient(90deg, #00ff64 3.4000000000000004px, #3bbc6e 3.4000000000000004px) -1.7000000000000002px 0;
+    background-size: 85px 85px, 85px 85px, 42.5px 42.5px, 42.5px 42.5px;
+}
+
+nav {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+
+    border: 4px solid white;
+    box-shadow: 0 0 0 10px black;
+    background-color: var(--contrast-dark-color);
+    color: var(--contrast-light-color);
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--nav-fg-color);
+    padding: 1em;
+
+    min-width: 2em;
+    text-align: center;
+}
+
+nav a.to-left {
+    float: left;
+}
+
+nav a.to-right {
+    float: right;
+}
+
+nav .selected {
+
+}
+
+nav .impressive {
+    background-color: var(--contrast-light-color);
+    color: var(--accent-color);
+}
+
+.center-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 90vh;
+}
+
+.menu {
+
+}
+
+.menu-card {
+    float: center;
+    display: inline-block;
+    width: 40vh;
+    height: 30vh;
+    margin: 4vh;
+
+    font-family: var(--accent-font-name);
+
+    color: var(--contrast-dark-color);
+    background-color: var(--contrast-light-color);
+    border: 15px solid var(--contrast-dark-color);
+
+    text-decoration: none;
+
+    transform: scale(1);
+    transition-duration: 0.1s;
+}
+
+.menu-card:hover {
+    transform: rotate(3deg) scale(1.03);
+    background-color: var(--primary-soft-color);
+}
+
+.menu-card-top {
+    min-height: 18vh;
+    font-size: 8em;
+}
+
+.menu-card:hover .menu-card-top {
+    color: var(--contrast-light-color);
+}
+
+.menu-card-bottom {
+    min-height: 12vh;
+    font-size: 5em;
+
+    text-align: left;
+    margin-left: 4px;
+}
+
+.menu-card:hover .menu-card-bottom {
+    color: var(--contrast-light-color);
+}
+
+form.join-game {
+}
+
+.join-game-input {
+    margin: 1em;
+    padding: 1em;
+    flex-grow: 1;
+
+    background-color: white;
+    box-shadow: 0 0 0 2px #0a0c06;
+}
+
+.join-game-input input {
+    display: block;
+}
+
+.join-game-input input[type=label] {
+    background-color: white;
+}
+
+.join-game-input input[type=text] {
+    background-color: white;
+    border: 2px dotted #0a0c06;
+}
+
+.game {
+    display: flex;
+}
+
+.game .players {
+    flex: 1;
+    float: left;
+}
+
+.players .player-card {
+    margin: 1em;
+    padding: 1em;
+    flex-grow: 1;
+    background-color: white;
+    box-shadow: 0 0 0 2px #0a0c06;
+}
+
+.game .tv {
+    float: center;
+
+    background-color: var(--body-bg-color);
+    opacity: 1.0;
+    background: radial-gradient(circle, transparent 20%, #ffef76 20%, #ffef76 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, #ffef76 20%, #ffef76 80%, transparent 80%, transparent) 25px 25px, linear-gradient(#e6cf4f 2px, transparent 2px) 0 -1px, linear-gradient(90deg, #e6cf4f 2px, #ffef76 2px) -1px 0;
+    background-size: 50px 50px, 50px 50px, 25px 25px, 25px 25px;
+
+    border: 8px solid white;
+    border-bottom: 12px solid white;
+    border-top: 6px solid white;
+
+    box-shadow: 0 0 0 3px #0a0c06;
+
+    height: 72vh;
+    width: 108vh;
+}
+
+.game .info {
+    flex: 1;
+    float: right;
+}
