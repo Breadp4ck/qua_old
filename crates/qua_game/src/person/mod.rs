@@ -8,10 +8,19 @@ pub trait Personality {
     fn with_name(name: PersonName) -> Self;
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub enum Person {
     Player(player::Player),
     Host(host::Host),
+}
+
+impl Person {
+    pub fn name(&self) -> &PersonName {
+        match self {
+            Person::Player(player) => player.name(),
+            Person::Host(host) => host.name(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash, Default)]

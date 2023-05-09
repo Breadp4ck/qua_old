@@ -45,7 +45,7 @@ impl GameService {
         tokio::spawn(async move {
             while let Some(event) = receiver.recv().await {
                 let GameConnectionEvent::Connect(socket, ticket, room_id) = event;
-                shared.lock().await.connect(socket, ticket, room_id);
+                shared.lock().await.connect(socket, ticket, room_id).await;
             }
         });
 
@@ -58,7 +58,7 @@ struct GameServiceInner {
 }
 
 impl GameServiceInner {
-    fn connect(&mut self, socket: WebSocket, ticket_data: TicketData, room_id: RoomId) {
+    async fn connect(&mut self, socket: WebSocket, ticket_data: TicketData, room_id: RoomId) {
         let room = if let Some(room) = self.rooms.get_mut(&room_id) {
             room
         } else {
@@ -66,7 +66,7 @@ impl GameServiceInner {
             panic!("Room not found");
         };
 
-        room.add_person(socket, ticket_data.person());
+        room.add_person(socket, ticket_data.person()).await;
     }
 
     pub fn create_room(&mut self, room_id: RoomId) {

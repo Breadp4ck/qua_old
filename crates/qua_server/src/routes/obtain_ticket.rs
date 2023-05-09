@@ -10,5 +10,6 @@ pub async fn obtain_ticket(
     Json(ticket_data): Json<TicketData>,
 ) -> Result<Json<Ticket>, RoomError> {
     let ticket = state.ticket_service.add_ticket(ticket_data).await;
+
     Ok(Json(ticket))
 }

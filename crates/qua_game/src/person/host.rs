@@ -1,7 +1,7 @@
 use super::{PersonName, Personality};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct Host {
     name: PersonName,
 }

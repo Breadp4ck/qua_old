@@ -14,8 +14,8 @@ pub fn create(cx: Scope) -> Element {
                 RoomService::join_room(
                     RoomService::obtain_ticket(
                         Person::Host(Host::with_name(PersonName::new(&username))),
-                        // RoomService::create_room("kek".to_string()).await,
-                        RoomCode { data: "lol".to_string() }
+                        RoomService::create_room("kek".to_string()).await,
+                        // RoomCode { code: "lol".to_string() }
                     )
                     .await,
                 )

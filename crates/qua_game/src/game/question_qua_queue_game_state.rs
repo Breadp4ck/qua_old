@@ -7,7 +7,7 @@ impl GameStateInteraction for QuestionQuaQueueGameState {
     fn handle_event(
         &mut self,
         context: &mut GameContext,
-        event: GameEventLocal,
+        event: &GameEventLocal,
         author: &mut Person,
     ) -> Option<GameState> {
         None

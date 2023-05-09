@@ -1,7 +1,7 @@
 use std::ops::{Add, AddAssign, Sub, SubAssign};
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Serialize, Deserialize, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Default, Serialize, Deserialize, Clone, Copy, Debug)]
 pub struct Scores {
     value: i32,
 }

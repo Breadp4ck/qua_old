@@ -2,7 +2,7 @@ use super::{PersonName, Personality};
 use crate::scores::Scores;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Clone, Default, Serialize, Deserialize)]
 pub struct Player {
     name: PersonName,
     scores: Scores,

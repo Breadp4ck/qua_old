@@ -39,43 +39,43 @@ struct TicketServiceInner {
 
 impl TicketServiceInner {
     async fn add_ticket(&mut self, ticket_data: TicketData) -> Ticket {
-        let ticket_id = self.generate_ticket_id().await;
+        let ticket = self.generate_ticket().await;
         self.tickets
             .lock()
             .await
-            .insert(ticket_id.clone(), ticket_data);
+            .insert(ticket.clone(), ticket_data);
 
         let tickets = self.tickets.clone();
-        let removing_ticket_id = ticket_id.clone();
+        let removing_ticket = ticket.clone();
 
         tokio::spawn(async move {
             sleep(Duration::from_secs(TICKET_EXPIRE_TIME_SECONDS)).await;
-            tickets.lock().await.remove(&removing_ticket_id);
+            tickets.lock().await.remove(&removing_ticket);
         });
 
-        ticket_id
+        ticket
     }
 
-    async fn remove_ticket(&mut self, ticket_id: Ticket) -> Result<(), ()> {
-        if let None = self.tickets.lock().await.remove(&ticket_id) {
+    async fn remove_ticket(&mut self, ticket: Ticket) -> Result<(), ()> {
+        if let None = self.tickets.lock().await.remove(&ticket) {
             Err(())
         } else {
             Ok(())
         }
     }
 
-    async fn generate_ticket_id(&self) -> Ticket {
-        let mut ticket_id = Ticket::random();
+    async fn generate_ticket(&self) -> Ticket {
+        let mut ticket = Ticket::random();
 
-        while let true = self.tickets.lock().await.contains_key(&ticket_id) {
-            ticket_id = Ticket::random();
+        while let true = self.tickets.lock().await.contains_key(&ticket) {
+            ticket = Ticket::random();
         }
 
-        ticket_id
+        ticket
     }
 
-    async fn get_ticket_data(&self, ticket_id: &Ticket) -> Option<TicketData> {
-        if let Some(ticket_data) = self.tickets.lock().await.get(&ticket_id) {
+    async fn get_ticket_data(&self, ticket: &Ticket) -> Option<TicketData> {
+        if let Some(ticket_data) = self.tickets.lock().await.get(&ticket) {
             Some((*ticket_data).clone())
         } else {
             None

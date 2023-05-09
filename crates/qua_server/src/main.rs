@@ -4,10 +4,10 @@ use axum::{
     Router,
 };
 use http::header;
-use sqlx::postgres::PgPool;
-use sqlx::postgres::PgPoolOptions;
+// use sqlx::postgres::PgPool;
+// use sqlx::postgres::PgPoolOptions;
+use std::net::SocketAddr;
 use tokio::sync::mpsc::UnboundedSender;
-use std::{net::SocketAddr, time::Duration};
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -32,7 +32,7 @@ pub struct AppState {
     pub lobby_service: LobbyService,
     pub game_service: GameService,
     pub connection_event_sender: UnboundedSender<GameConnectionEvent>,
-    pub pool: PgPool,
+    // pub pool: PgPool,
 }
 
 #[tokio::main]
@@ -45,15 +45,15 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let db_connection_str = std::env::var("127.0.0.1:5432")
-        .unwrap_or_else(|_| "postgres://postgres:mysecretpassword@localhost".to_string());
+    // let db_connection_str = std::env::var("127.0.0.1:5432")
+    //     .unwrap_or_else(|_| "postgres://postgres:mysecretpassword@localhost".to_string());
 
-    let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .acquire_timeout(Duration::from_secs(3))
-        .connect(&db_connection_str)
-        .await
-        .expect("can't connect to database");
+    // let pool = PgPoolOptions::new()
+    //     .max_connections(5)
+    //     .acquire_timeout(Duration::from_secs(3))
+    //     .connect(&db_connection_str)
+    //     .await
+    //     .expect("can't connect to database");
 
     let cors = CorsLayer::new()
         .allow_headers([header::ORIGIN, header::CONTENT_TYPE])
@@ -69,13 +69,13 @@ async fn main() {
         lobby_service,
         game_service,
         connection_event_sender,
-        pool,
+        // pool,
     };
 
     let app = Router::new()
         .route("/api/room/join/:ticket", get(join_room))
         .route("/api/room/obtain_ticket", post(obtain_ticket))
-        .route("/api/room/create", post(create_room))
+        .route("/api/room/create", get(create_room))
         .layer(cors)
         .layer(DefaultBodyLimit::disable())
         .with_state(state);

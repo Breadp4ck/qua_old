@@ -12,12 +12,13 @@ use crate::AppState;
 
 #[axum::debug_handler]
 pub async fn join_room(
-    Path(ticket): Path<Ticket>,
+    Path(ticket): Path<String>,
     State(app): State<AppState>,
     ws: WebSocketUpgrade,
     _: Option<TypedHeader<headers::UserAgent>>,
     ConnectInfo(_): ConnectInfo<SocketAddr>,
 ) -> impl IntoResponse {
+    let ticket = Ticket::from(ticket);
     let ticket_data = if let Some(ticket_data) = app.ticket_service.get_ticket_data(&ticket).await {
         ticket_data
     } else {

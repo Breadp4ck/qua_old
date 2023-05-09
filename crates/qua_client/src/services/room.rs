@@ -8,25 +8,25 @@ pub struct CreateRoomRequest {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct ObtainTicketRequest {
+pub struct TicketData {
     code: RoomCode,
     person: Person,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RoomCode {
-    pub data: String, //todo remove pub
+    pub code: String, //todo remove pub
 }
 
 impl ToString for RoomCode {
     fn to_string(&self) -> String {
-        self.data.clone()
+        self.code.clone()
     }
 }
 
 impl From<String> for RoomCode {
-    fn from(data: String) -> Self {
-        Self { data }
+    fn from(code: String) -> Self {
+        Self { code }
     }
 }
 
@@ -48,8 +48,8 @@ impl RoomService {
         let request = CreateRoomRequest { name };
 
         let room_code: RoomCode = reqwest::Client::new()
-            .post("http://localhost:8000/api/room/create")
-            .json(&request)
+            .get("http://localhost:8000/api/room/create")
+            // .json(&request)
             .send()
             .await
             .expect("Failed send request")
@@ -74,7 +74,7 @@ impl RoomService {
     }
 
     pub async fn obtain_ticket(person: Person, code: RoomCode) -> Ticket {
-        let request = ObtainTicketRequest { person, code };
+        let request = TicketData { person, code };
 
         let ticket: Ticket = reqwest::Client::new()
             .post("http://localhost:8000/api/room/obtain_ticket")

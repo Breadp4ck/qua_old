@@ -78,7 +78,7 @@ trait GameStateInteraction {
     fn handle_event(
         &mut self,
         context: &mut GameContext,
-        event: GameEventLocal,
+        event: &GameEventLocal,
         author: &mut Person,
     ) -> Option<GameState>;
 }
@@ -101,7 +101,7 @@ impl GameState {
     fn handle_event(
         &mut self,
         context: &mut GameContext,
-        event: GameEventLocal,
+        event: &GameEventLocal,
         author: &mut Person,
     ) -> Option<Self> {
         match self {
@@ -167,18 +167,18 @@ impl Game {
         self.players.remove(&name);
     }
 
-    pub fn handle_event(&mut self, event: GameEvent, author: &mut Person) {
+    pub fn handle_event(&mut self, event: &GameEvent, author: &mut Person) {
         match event {
             GameEvent::Local(event) => {
-                self.state.handle_event(&mut self.context, event, author);
+                self.state.handle_event(&mut self.context, &event, author);
             }
             GameEvent::Global(event) => {
-                self.handle_global_event(event, author);
+                self.handle_global_event(&event, author);
             }
         }
     }
 
-    fn handle_global_event(&mut self, _event: GameEventGlobal, _author: &mut Person) {}
+    fn handle_global_event(&mut self, _event: &GameEventGlobal, _author: &mut Person) {}
 }
 
 pub mod prelude {

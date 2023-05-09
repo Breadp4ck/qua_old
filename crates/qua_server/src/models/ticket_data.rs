@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::RoomCode;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(PartialEq, Eq, Serialize, Deserialize, Clone)]
 pub struct TicketData {
     code: RoomCode,
     person: Person,

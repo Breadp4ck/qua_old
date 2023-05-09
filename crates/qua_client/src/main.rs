@@ -9,10 +9,7 @@ pub mod services;
 use components::prelude::*;
 use pages::prelude::*;
 
-// const JOIN_ROOM_API: &str = "ws://localhost:8000/api/room/join/12345";
-
 fn main() {
-    // init debug tool for WebAssembly
     wasm_logger::init(wasm_logger::Config::default());
     console_error_panic_hook::set_once();
 
