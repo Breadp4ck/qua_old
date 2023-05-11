@@ -6,10 +6,7 @@ pub fn game(cx: Scope) -> Element {
         div {
             class: "center-screen game",
             div {
-                class: "players",
-                player_card { username: "player1" },
-                player_card { username: "player2" },
-                player_card { username: "player3" },
+                player_list {}
             }
             div {
                 class: "tv",

@@ -1,13 +1,13 @@
 use super::*;
 
-#[derive(Default)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 pub struct QuestionQuaWaitingGameState;
 
 impl GameStateInteraction for QuestionQuaWaitingGameState {
     fn handle_event(
         &mut self,
         context: &mut GameContext,
-        event: &GameEventLocal,
+        event: &StateInputEvent,
         author: &mut Person,
     ) -> Option<GameState> {
         None

@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::question::Question;
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Theme {
     pub questions: Vec<Question>,
 }

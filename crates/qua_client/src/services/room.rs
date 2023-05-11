@@ -1,6 +1,6 @@
+use ewebsock::{WsReceiver, WsSender};
 use qua_game::person::Person;
 use serde::{Deserialize, Serialize};
-use ws_stream_wasm::{WsMeta, WsStream};
 
 #[derive(Serialize, Deserialize)]
 pub struct CreateRoomRequest {
@@ -44,9 +44,7 @@ impl ToString for Ticket {
 pub struct RoomService;
 
 impl RoomService {
-    pub async fn create_room(name: String) -> RoomCode {
-        let request = CreateRoomRequest { name };
-
+    pub async fn create_room(_: String) -> RoomCode {
         let room_code: RoomCode = reqwest::Client::new()
             .get("http://localhost:8000/api/room/create")
             // .json(&request)
@@ -60,17 +58,14 @@ impl RoomService {
         room_code
     }
 
-    pub async fn join_room(ticket: Ticket) -> (WsMeta, WsStream) {
+    pub async fn join_room(ticket: Ticket) -> (WsSender, WsReceiver) {
         let ticket = ticket.to_string();
 
-        let (ws, wsio) = ws_stream_wasm::WsMeta::connect(
-            format!("ws://localhost:8000/api/room/join/{ticket}"),
-            None,
-        )
-        .await
-        .expect("assume the connection succeeds");
+        let (sender, receiver) =
+            ewebsock::connect(format!("ws://localhost:8000/api/room/join/{ticket}"))
+                .expect("Failed to connect");
 
-        (ws, wsio)
+        (sender, receiver)
     }
 
     pub async fn obtain_ticket(person: Person, code: RoomCode) -> Ticket {

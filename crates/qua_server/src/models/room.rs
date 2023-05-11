@@ -3,7 +3,7 @@ use std::sync::Arc;
 use axum::extract::ws::{Message, WebSocket};
 use futures::{stream::{SplitSink, StreamExt}, SinkExt};
 use qua_game::{
-    game::{Game, GameEvent},
+    game::{Game, InputEvent},
     package::prelude::Package,
     person::{Person, PersonName},
 };
@@ -41,8 +41,8 @@ impl Room {
                 if let Ok(message) = message {
                     match message {
                         Message::Text(text) => {
-                            let (event, _) = serde_json::from_str::<(GameEvent, PersonName)>(&text).unwrap();
-                            game.lock().await.handle_event(&event, &mut author);
+                            let (event, _) = serde_json::from_str::<(InputEvent, PersonName)>(&text).unwrap();
+                            // game.lock().await.handle_event(&event, &mut author);
 
                             let mut senders = senders.lock().await;
                             Self::broadcast(&mut senders, &event, &author.name()).await;
@@ -61,7 +61,7 @@ impl Room {
         });
     }
 
-    async fn broadcast(senders: &mut Vec<SplitSink<WebSocket, Message>>, event: &GameEvent, author_name: &PersonName) {
+    async fn broadcast(senders: &mut Vec<SplitSink<WebSocket, Message>>, event: &InputEvent, author_name: &PersonName) {
         for sender in senders.iter_mut() {
             if sender.send(Message::Text(serde_json::to_string(&(event, author_name)).unwrap())).await.is_err() {
                 eprintln!("Client disconnected");

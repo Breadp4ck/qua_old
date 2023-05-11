@@ -1,7 +1,10 @@
+use serde::{Deserialize, Serialize};
+
 use crate::game::Question;
 
 use super::round::Round;
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Package {
     pub rounds: Vec<Round>,
     pub final_round: Round,

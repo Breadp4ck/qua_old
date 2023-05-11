@@ -88,7 +88,7 @@ impl Into<Package> for PackageResource {
                     let game_question = Question {
                         answered: false,
                         cost: item.cost.into(),
-                        answered_by: Vec::new(),
+                        answered_by: None,
                     };
 
                     game_theme.questions.push(game_question);

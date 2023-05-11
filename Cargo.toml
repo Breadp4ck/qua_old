@@ -11,14 +11,14 @@ log = "0.4.6"
 console_error_panic_hook = "0.1.7"
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 getrandom = { version = "0.2", features = ["js"] }
-ws_stream_wasm = "0.7"
+ws_stream_wasm = { version = "0.7", features = ["tokio_io"]}
 futures-util = "0.3.21"
 dioxus = "0.3"
 dioxus-web = "0.3"
 dioxus-router = "0.3"
 reqwest = { version = "0.11.16", features = ["json", "multipart"] }
 axum = { version = "0.6.4", features = ["ws", "headers", "macros", "multipart"] }
-tokio = { version = "1.0", features = ["full"] }
+tokio = { version = "1.0", default-features = false, features = ["sync"] }
 tower = "0.4.13"
 tower-http = { version = "0.4.0", features = ["cors", "trace"] }
 http = "0.2.9"

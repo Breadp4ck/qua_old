@@ -2,9 +2,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::{person::PersonName, scores::Scores};
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Question {
     pub answered: bool,
-    pub answered_by: Vec<PersonName>,
+    pub answered_by: Option<PersonName>,
     pub cost: Scores,
 }
 

@@ -1,17 +1,17 @@
 use super::*;
 
-#[derive(Default)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 pub struct OverviewGameState;
 
 impl GameStateInteraction for OverviewGameState {
     fn handle_event(
         &mut self,
         context: &mut GameContext,
-        event: &GameEventLocal,
+        event: &StateInputEvent,
         author: &mut Person,
     ) -> Option<GameState> {
         match event {
-            GameEventLocal::Timeout => Some(GameState::Board(BoardGameState::default())),
+            StateInputEvent::Timeout => Some(GameState::Board(BoardGameState::default())),
             _ => None,
         }
     }

@@ -1,17 +1,17 @@
 use super::*;
 
-#[derive(Default)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 pub struct BoardGameState;
 
 impl GameStateInteraction for BoardGameState {
     fn handle_event(
         &mut self,
         context: &mut GameContext,
-        event: &GameEventLocal,
+        event: &StateInputEvent,
         author: &mut Person,
     ) -> Option<GameState> {
         match (event, author) {
-            (GameEventLocal::SelectQuestion(question), Person::Player(player)) => {
+            (StateInputEvent::SelectQuestion(question), Person::Player(player)) => {
                 if let Some(leader_name) = context.lead_player.clone() {
                     //TODO: is question selectable?
                     //      (current round, not selected previously)

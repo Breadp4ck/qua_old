@@ -37,7 +37,7 @@ pub enum EmiterType {
     Player,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum Round {
     Default(RoundIndex),
     Final,
@@ -50,7 +50,7 @@ pub enum Question {
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum GameEventLocal {
+pub enum StateInputEvent {
     Begin,
     SelectQuestion(Question),
     Answer,
@@ -60,7 +60,7 @@ pub enum GameEventLocal {
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum GameEventGlobal {
+pub enum InputEvent {
     AssignLeadPlayer(PersonName),
     GivePlayerScores(PersonName, Scores),
     TakePlayerScores(PersonName, Scores),
@@ -69,20 +69,28 @@ pub enum GameEventGlobal {
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum GameEvent {
-    Local(GameEventLocal),
-    Global(GameEventGlobal),
+pub enum StateEvent {
+
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum Command {
+    Input(InputEvent),
+    StateInput(StateInputEvent),
+    SyncRequest,
+    SyncResponse(Game),
 }
 
 trait GameStateInteraction {
     fn handle_event(
         &mut self,
         context: &mut GameContext,
-        event: &GameEventLocal,
+        event: &StateInputEvent,
         author: &mut Person,
     ) -> Option<GameState>;
 }
 
+#[derive(Clone, Serialize, Deserialize)]
 pub enum GameState {
     Init(InitGameState),
     Greet(GreetGameState),
@@ -98,10 +106,10 @@ pub enum GameState {
 }
 
 impl GameState {
-    fn handle_event(
+    fn handle_input(
         &mut self,
         context: &mut GameContext,
-        event: &GameEventLocal,
+        event: &StateInputEvent,
         author: &mut Person,
     ) -> Option<Self> {
         match self {
@@ -120,6 +128,7 @@ impl GameState {
     }
 }
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct GameContext {
     pub round: Round,
     pub lead_player: Option<PersonName>,
@@ -136,6 +145,7 @@ impl Default for GameContext {
     }
 }
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Game {
     package: Package,
     state: GameState,
@@ -167,18 +177,11 @@ impl Game {
         self.players.remove(&name);
     }
 
-    pub fn handle_event(&mut self, event: &GameEvent, author: &mut Person) {
-        match event {
-            GameEvent::Local(event) => {
-                self.state.handle_event(&mut self.context, &event, author);
-            }
-            GameEvent::Global(event) => {
-                self.handle_global_event(&event, author);
-            }
-        }
+    pub fn handle_state_input(&mut self, event: &StateInputEvent, author: &mut Person) {
+        self.state.handle_input(&mut self.context, &event, author);
     }
 
-    fn handle_global_event(&mut self, _event: &GameEventGlobal, _author: &mut Person) {}
+    fn handle_input(&mut self, _event: &InputEvent, _author: &mut Person) {}
 }
 
 pub mod prelude {

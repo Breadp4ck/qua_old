@@ -22,7 +22,14 @@ pub fn menu_card<'menu>(cx: Scope<'menu, MenuCardProps<'menu>>) -> Element {
             },
             div {
                 class: "menu-card-bottom",
-                "{cx.props.title}"
+                div {
+                    class: "header",
+                    "{cx.props.title}"
+                }
+                div {
+                    class: "paragraph",
+                    ""
+                }
             },
         }
     })

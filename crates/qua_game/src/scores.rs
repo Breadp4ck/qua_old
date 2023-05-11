@@ -1,9 +1,15 @@
-use std::ops::{Add, AddAssign, Sub, SubAssign};
 use serde::{Deserialize, Serialize};
+use std::{ops::{Add, AddAssign, Sub, SubAssign}, fmt::Display};
 
 #[derive(PartialEq, Eq, Default, Serialize, Deserialize, Clone, Copy, Debug)]
 pub struct Scores {
     value: i32,
+}
+
+impl Display for Scores {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.value)
+    }
 }
 
 impl From<i32> for Scores {

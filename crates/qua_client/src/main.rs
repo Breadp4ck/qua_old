@@ -1,5 +1,6 @@
 use dioxus::prelude::*;
 use dioxus_router::*;
+use ewebsock::{WsReceiver, WsSender};
 
 pub mod components;
 pub mod contexts;
@@ -8,6 +9,11 @@ pub mod services;
 
 use components::prelude::*;
 use pages::prelude::*;
+use qua_game::game::Game;
+
+struct GameInstance(Option<Game>);
+struct GameWsSender(Option<WsSender>);
+struct GameWsReceiver(Option<WsReceiver>);
 
 fn main() {
     wasm_logger::init(wasm_logger::Config::default());
@@ -23,6 +29,10 @@ fn not_found(cx: Scope) -> Element {
 }
 
 fn app(cx: Scope) -> Element {
+    use_shared_state_provider(cx, || GameInstance(None));
+    use_shared_state_provider(cx, || GameWsSender(None));
+    use_shared_state_provider(cx, || GameWsReceiver(None));
+
     cx.render(rsx! (
         Router {
             self::nav {}

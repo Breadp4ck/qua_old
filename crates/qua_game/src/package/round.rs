@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::theme::Theme;
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Round {
     pub themes: Vec<Theme>,
 }

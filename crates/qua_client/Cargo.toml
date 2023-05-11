@@ -20,3 +20,5 @@ reqwest = { workspace = true, features = ["json", "multipart"] }
 serde = { workspace = true, features = ["derive"] }
 dioxus-router.workspace = true
 wasm-logger.workspace = true
+tokio.workspace = true
+ewebsock = "0.2"
