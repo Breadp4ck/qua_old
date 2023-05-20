@@ -1,9 +1,9 @@
 use dioxus::prelude::*;
 
-pub fn player_list(cx: Scope) -> Element {
+pub fn game_host_card(cx: Scope) -> Element {
     cx.render(rsx! {
         div {
-            class: "player-list",
+            "host_card"
         }
     })
 }

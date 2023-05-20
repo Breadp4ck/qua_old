@@ -10,15 +10,22 @@ edition = "2021"
 qua_game = { path = "../qua_game", version = "0.1.0" }
 qua_package = { path = "../qua_package", version = "0.1.0" }
 getrandom = { workspace = true, features = ["js"] }
-ws_stream_wasm.workspace = true
 futures-util.workspace = true
 dioxus.workspace = true
 dioxus-web.workspace = true
+fermi.workspace = true
 log.workspace = true
 console_error_panic_hook.workspace = true
 reqwest = { workspace = true, features = ["json", "multipart"] }
 serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
 dioxus-router.workspace = true
 wasm-logger.workspace = true
 tokio.workspace = true
-ewebsock = "0.2"
+async-timer.workspace = true
+ewebsock = { version = "0.2", default-features = false }
+wasm-sockets.workspace = true
+zip.workspace = true
+web-sys.workspace = true
+wasm-bindgen.workspace = true
+js-sys. workspace = true

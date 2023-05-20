@@ -15,7 +15,8 @@ impl RoomCode {
             .sample_iter(Alphanumeric)
             .take(MAX_ROOM_CODE_LENGTH)
             .map(char::from)
-            .collect();
+            .collect::<String>()
+            .to_ascii_uppercase();
 
         Self { code }
     }

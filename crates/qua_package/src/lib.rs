@@ -43,6 +43,6 @@ sound_src = \"\" # for Sound
 cover_src = \"\" # for Sound (can be empty)
 ";
 
-        let _package = PackageResource::new(package_content);
+        let _package = PackageResource::from_toml(package_content);
     }
 }

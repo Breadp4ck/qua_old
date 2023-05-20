@@ -1,6 +1,8 @@
+use std::sync::Arc;
+
 use dioxus::prelude::*;
 use dioxus_router::*;
-use ewebsock::{WsReceiver, WsSender};
+use fermi::prelude::*;
 
 pub mod components;
 pub mod contexts;
@@ -9,11 +11,16 @@ pub mod services;
 
 use components::prelude::*;
 use pages::prelude::*;
-use qua_game::game::Game;
+use services::prelude::{Ticket, RoomCode};
+use tokio::sync::Mutex;
+use wasm_sockets::PollingClient;
 
-struct GameInstance(Option<Game>);
-struct GameWsSender(Option<WsSender>);
-struct GameWsReceiver(Option<WsReceiver>);
+static TICKET: Atom<Option<Ticket>> = |_| None;
+static ROOM_CODE: Atom<Option<RoomCode>> = |_| None;
+
+type InnerConnection = Arc<Mutex<PollingClient>>;
+type Connection = Option<InnerConnection>;
+
 
 fn main() {
     wasm_logger::init(wasm_logger::Config::default());
@@ -29,9 +36,7 @@ fn not_found(cx: Scope) -> Element {
 }
 
 fn app(cx: Scope) -> Element {
-    use_shared_state_provider(cx, || GameInstance(None));
-    use_shared_state_provider(cx, || GameWsSender(None));
-    use_shared_state_provider(cx, || GameWsReceiver(None));
+    use_init_atom_root(cx);
 
     cx.render(rsx! (
         Router {
@@ -39,7 +44,7 @@ fn app(cx: Scope) -> Element {
             Route { to: "/", self::home {}}
             Route { to: "/create", self::create {}}
             Route { to: "/join", self::join {}}
-            Route { to: "/game", self::game {}}
+            Route { to: "/room", self::room {}}
             Route { to: "", self::not_found {}}
         }
     ))

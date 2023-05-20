@@ -4,6 +4,7 @@ use axum::{
     Router,
 };
 use http::header;
+use log::*;
 // use sqlx::postgres::PgPool;
 // use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;

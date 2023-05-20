@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use std::collections::HashMap;
 
 use crate::package::prelude::*;
@@ -50,7 +51,7 @@ pub enum Question {
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum StateInputEvent {
+pub enum InputEvent {
     Begin,
     SelectQuestion(Question),
     Answer,
@@ -60,7 +61,7 @@ pub enum StateInputEvent {
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum InputEvent {
+pub enum StatelessInputEvent {
     AssignLeadPlayer(PersonName),
     GivePlayerScores(PersonName, Scores),
     TakePlayerScores(PersonName, Scores),
@@ -69,23 +70,37 @@ pub enum InputEvent {
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum StateEvent {
-
-}
+pub enum StateEvent {}
 
 #[derive(Serialize, Deserialize)]
 pub enum Command {
+    StatelessInput(StatelessInputEvent),
     Input(InputEvent),
-    StateInput(StateInputEvent),
     SyncRequest,
     SyncResponse(Game),
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum ClientMessage {
+    Input(InputEvent),
+    StatelessInput(StatelessInputEvent),
+    SyncRequest,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum ServerMessage {
+    Input(InputEvent, PersonName),
+    StatelessInput(StatelessInputEvent, PersonName),
+    SyncResponse(Game),
+    PersonConnected(Person),
+    PersonDisconnected(PersonName),
 }
 
 trait GameStateInteraction {
     fn handle_event(
         &mut self,
         context: &mut GameContext,
-        event: &StateInputEvent,
+        event: &InputEvent,
         author: &mut Person,
     ) -> Option<GameState>;
 }
@@ -109,7 +124,7 @@ impl GameState {
     fn handle_input(
         &mut self,
         context: &mut GameContext,
-        event: &StateInputEvent,
+        event: &InputEvent,
         author: &mut Person,
     ) -> Option<Self> {
         match self {
@@ -131,7 +146,8 @@ impl GameState {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct GameContext {
     pub round: Round,
-    pub lead_player: Option<PersonName>,
+    pub host: Option<PersonName>,
+    pub lead: Option<PersonName>,
     pub question: Option<Question>,
 }
 
@@ -139,18 +155,20 @@ impl Default for GameContext {
     fn default() -> Self {
         Self {
             round: Round::Default(0.into()),
-            lead_player: None,
+            host: None,
+            lead: None,
             question: None,
         }
     }
 }
 
+#[serde_as]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Game {
     package: Package,
     state: GameState,
-    host: Option<Host>,
-    players: HashMap<PersonName, Player>,
+    #[serde_as(as = "Vec<(_, _)>")]
+    persons: HashMap<PersonName, Person>,
     context: GameContext,
 }
 
@@ -159,29 +177,47 @@ impl Game {
         Game {
             package,
             state: GameState::Init(InitGameState::default()),
-            host: None,
-            players: HashMap::new(),
+            persons: HashMap::new(),
             context: GameContext::default(),
         }
     }
 
-    pub fn add_host(&mut self, host: Host) {
-        self.host = Some(host);
+    pub fn sync(&mut self, new_game: Self) {
+        self.package = new_game.package;
+        self.state = new_game.state;
+        self.persons = new_game.persons;
+        self.context = new_game.context;
     }
 
-    pub fn add_player(&mut self, player: Player) {
-        self.players.insert(player.name().clone(), player);
+    pub fn get_players(&self) -> Vec<Player> {
+        let mut players: Vec<Player> = vec![];
+
+        for person in self.persons.values() {
+            if let Person::Player(player) = person {
+                players.push(player.clone());
+            }
+        }
+
+        players
     }
 
-    pub fn remove_player(&mut self, name: PersonName) {
-        self.players.remove(&name);
+    pub fn add_person(&mut self, person: Person) {
+        self.persons.insert(person.name().clone(), person);
     }
 
-    pub fn handle_state_input(&mut self, event: &StateInputEvent, author: &mut Person) {
-        self.state.handle_input(&mut self.context, &event, author);
+    pub fn remove_person(&mut self, name: PersonName) {
+        self.persons.remove(&name);
     }
 
-    fn handle_input(&mut self, _event: &InputEvent, _author: &mut Person) {}
+    pub fn handle_input(&mut self, event: &InputEvent, author: &PersonName) {
+        self.state.handle_input(
+            &mut self.context,
+            &event,
+            self.persons.get_mut(author).unwrap(),
+        );
+    }
+
+    pub fn handle_stateless_input(&mut self, _event: &StatelessInputEvent, _author: &PersonName) {}
 }
 
 pub mod prelude {

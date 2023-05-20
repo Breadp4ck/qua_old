@@ -21,3 +21,4 @@ http.workspace = true
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 rand.workspace = true
 futures.workspace = true
+log.workspace = true

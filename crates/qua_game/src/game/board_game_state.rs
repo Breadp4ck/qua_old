@@ -7,12 +7,12 @@ impl GameStateInteraction for BoardGameState {
     fn handle_event(
         &mut self,
         context: &mut GameContext,
-        event: &StateInputEvent,
+        event: &InputEvent,
         author: &mut Person,
     ) -> Option<GameState> {
         match (event, author) {
-            (StateInputEvent::SelectQuestion(question), Person::Player(player)) => {
-                if let Some(leader_name) = context.lead_player.clone() {
+            (InputEvent::SelectQuestion(_), Person::Player(player)) => {
+                if let Some(leader_name) = context.lead.clone() {
                     //TODO: is question selectable?
                     //      (current round, not selected previously)
                     if *player.name() == leader_name {

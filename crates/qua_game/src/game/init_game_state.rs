@@ -6,12 +6,12 @@ pub struct InitGameState;
 impl GameStateInteraction for InitGameState {
     fn handle_event(
         &mut self,
-        context: &mut GameContext,
-        event: &StateInputEvent,
+        _: &mut GameContext,
+        event: &InputEvent,
         author: &mut Person,
     ) -> Option<GameState> {
         match (event, author) {
-            (StateInputEvent::Begin, Person::Host(_)) => {
+            (InputEvent::Begin, Person::Host(_)) => {
                 Some(GameState::Greet(GreetGameState::default()))
             }
             _ => None,

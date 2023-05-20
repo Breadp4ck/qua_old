@@ -6,12 +6,12 @@ pub struct OverviewGameState;
 impl GameStateInteraction for OverviewGameState {
     fn handle_event(
         &mut self,
-        context: &mut GameContext,
-        event: &StateInputEvent,
-        author: &mut Person,
+        _: &mut GameContext,
+        event: &InputEvent,
+        _: &mut Person,
     ) -> Option<GameState> {
         match event {
-            StateInputEvent::Timeout => Some(GameState::Board(BoardGameState::default())),
+            InputEvent::Timeout => Some(GameState::Board(BoardGameState::default())),
             _ => None,
         }
     }

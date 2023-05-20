@@ -1,9 +1,13 @@
+use log::*;
 use std::sync::Arc;
 
 use axum::extract::ws::{Message, WebSocket};
-use futures::{stream::{SplitSink, StreamExt}, SinkExt};
+use futures::{
+    stream::{SplitSink, StreamExt},
+    SinkExt,
+};
 use qua_game::{
-    game::{Game, InputEvent},
+    game::{ClientMessage, Game, ServerMessage, StatelessInputEvent},
     package::prelude::Package,
     person::{Person, PersonName},
 };
@@ -23,12 +27,8 @@ impl Room {
     }
 
     pub async fn add_person(&mut self, socket: WebSocket, person: Person) {
-        let mut author = person.clone();
-
-        match person {
-            Person::Player(player) => self.game.lock().await.add_player(player),
-            Person::Host(host) => self.game.lock().await.add_host(host),
-        }
+        let author = person.name().clone();
+        self.game.lock().await.add_person(person.clone());
 
         let (sender, mut receiver) = socket.split();
         let game = self.game.clone();
@@ -37,33 +37,81 @@ impl Room {
         let senders = self.senders.clone();
 
         tokio::spawn(async move {
+            info!("Person connected.");
+
+            {
+                let mut senders = senders.lock().await;
+                Self::broadcast(&mut senders, &ServerMessage::PersonConnected(person)).await;
+            }
+
             while let Some(message) = receiver.next().await {
                 if let Ok(message) = message {
                     match message {
                         Message::Text(text) => {
-                            let (event, _) = serde_json::from_str::<(InputEvent, PersonName)>(&text).unwrap();
-                            // game.lock().await.handle_event(&event, &mut author);
+                            let Ok(message) = serde_json::from_str::<ClientMessage>(&text) else {
+                                continue;
+                            };
 
-                            let mut senders = senders.lock().await;
-                            Self::broadcast(&mut senders, &event, &author.name()).await;
+                            info!("Got message from client: {}", text);
 
-                            println!("Event!");
+                            match message {
+                                ClientMessage::Input(event) => {
+                                    let mut game = game.lock().await;
+                                    game.handle_input(&event, &author);
+
+                                    let mut senders = senders.lock().await;
+                                    Self::broadcast(
+                                        &mut senders,
+                                        &ServerMessage::Input(event, author.clone()),
+                                    )
+                                    .await;
+                                }
+                                ClientMessage::StatelessInput(event) => {
+                                    let mut game = game.lock().await;
+                                    game.handle_stateless_input(&event, &author);
+
+                                    let mut senders = senders.lock().await;
+                                    Self::broadcast(
+                                        &mut senders,
+                                        &ServerMessage::StatelessInput(event, author.clone()),
+                                    )
+                                    .await;
+                                }
+                                ClientMessage::SyncRequest => {
+                                    let game = game.lock().await;
+
+                                    // TODO: send only to one person
+                                    // Self::send(&mut sender, &ServerMessage::SyncResponse(game.clone()));
+                                    let mut senders = senders.lock().await;
+                                    Self::broadcast(
+                                        &mut senders,
+                                        &ServerMessage::SyncResponse(game.clone()),
+                                    )
+                                    .await;
+                                }
+                            }
                         }
-                        Message::Binary(_) => {}
-                        Message::Ping(_) => {}
-                        Message::Pong(_) => {}
                         Message::Close(_) => {
-                            println!("Connection closed :(");
+                            // TODO: remove sender from senders, close socket
+                            // and send broadcast PlayerDisconnected event
+                            info!("Person disconnected.");
                         }
+                        _ => (),
                     }
                 }
             }
         });
     }
 
-    async fn broadcast(senders: &mut Vec<SplitSink<WebSocket, Message>>, event: &InputEvent, author_name: &PersonName) {
+    async fn broadcast(
+        senders: &mut Vec<SplitSink<WebSocket, Message>>,
+        server_message: &ServerMessage,
+    ) {
         for sender in senders.iter_mut() {
-            if sender.send(Message::Text(serde_json::to_string(&(event, author_name)).unwrap())).await.is_err() {
+            let message = Message::Text(
+                serde_json::to_string(&server_message).unwrap(),
+            );
+            if sender.send(message).await.is_err() {
                 eprintln!("Client disconnected");
             };
         }

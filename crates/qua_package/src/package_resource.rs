@@ -54,6 +54,7 @@ enum QuestionContent {
     Video {
         video_src: String,
     },
+    Empty,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -72,6 +73,7 @@ enum AnswerContent {
     Video {
         video_src: String,
     },
+    Empty,
 }
 
 impl Into<Package> for PackageResource {
@@ -105,7 +107,7 @@ impl Into<Package> for PackageResource {
 }
 
 impl PackageResource {
-    pub fn new(package_content: &str) -> Self {
+    pub fn from_toml(package_content: &str) -> Self {
         let package: PackageResource =
             toml::from_str(&package_content).expect("Failure reading package");
 
@@ -116,6 +118,6 @@ impl PackageResource {
         let package_content =
             fs::read_to_string(path).expect("Should have been able to read the file");
 
-        Self::new(&package_content)
+        Self::from_toml(&package_content)
     }
 }
