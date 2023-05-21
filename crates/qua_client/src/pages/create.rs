@@ -3,7 +3,6 @@ use dioxus::prelude::*;
 use dioxus_router::*;
 use fermi::prelude::*;
 use qua_game::person::prelude::*;
-use qua_package::package_resource::PackageResource;
 use std::collections::HashMap;
 use std::io::Read;
 use std::{io::Cursor, sync::Arc};
@@ -35,7 +34,7 @@ pub fn create(cx: Scope) -> Element {
 
                     if file.name() == "Pack.toml" {
                         file.read_to_string(&mut data_string).unwrap();
-                        let package_resource = PackageResource::from_toml(data_string.as_str());
+                        // let package_resource = PackageResource::from_toml(data_string.as_str());
                     } else {
                         file.read_to_end(&mut data_bin).unwrap();
 

@@ -7,7 +7,7 @@ pub struct Round {
     pub themes: Vec<Theme>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy)]
+#[derive(Hash, PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]
 pub struct RoundIndex {
     index: usize,
 }

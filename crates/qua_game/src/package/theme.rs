@@ -7,7 +7,7 @@ pub struct Theme {
     pub questions: Vec<Question>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy)]
+#[derive(Hash, PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]
 pub struct ThemeIndex {
     index: usize,
 }

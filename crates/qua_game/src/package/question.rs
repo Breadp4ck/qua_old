@@ -9,7 +9,7 @@ pub struct Question {
     pub cost: Scores,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy)]
+#[derive(Hash, PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]
 pub struct QuestionIndex {
     index: usize,
 }

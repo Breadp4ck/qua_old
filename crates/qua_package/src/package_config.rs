@@ -3,44 +3,44 @@ use std::fs;
 
 use qua_game::package::prelude::*;
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct PackageResource {
-    info: Info,
-    rounds: Vec<RoundData>,
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct PackageConfig {
+    pub info: Info,
+    pub rounds: Vec<RoundData>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Info {
-    name: String,
-    version: String,
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct Info {
+    pub name: String,
+    pub version: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct RoundData {
-    name: String,
-    themes: Vec<ThemeData>,
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct RoundData {
+    pub name: String,
+    pub themes: Vec<ThemeData>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct ThemeData {
-    name: String,
-    items: Vec<ItemData>,
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct ThemeData {
+    pub name: String,
+    pub items: Vec<ItemData>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct ItemData {
-    cost: i32,
-    title: String,
-    answer: String,
-    question_content: QuestionContent,
-    question_description: String,
-    answer_content: AnswerContent,
-    answer_description: String,
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct ItemData {
+    pub cost: i32,
+    pub title: String,
+    pub answer: String,
+    pub question_content: QuestionContent,
+    pub question_description: String,
+    pub answer_content: AnswerContent,
+    pub answer_description: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 #[serde(tag = "question_content_type")]
-enum QuestionContent {
+pub enum QuestionContent {
     Text {
         text_src: String,
     },
@@ -54,12 +54,12 @@ enum QuestionContent {
     Video {
         video_src: String,
     },
-    Empty,
+    Empty, // TODO: Remove
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 #[serde(tag = "answer_content_type")]
-enum AnswerContent {
+pub enum AnswerContent {
     Text {
         text_src: String,
     },
@@ -73,10 +73,10 @@ enum AnswerContent {
     Video {
         video_src: String,
     },
-    Empty,
+    Empty, // TODO: Remove
 }
 
-impl Into<Package> for PackageResource {
+impl Into<Package> for PackageConfig {
     fn into(self) -> Package {
         let mut game_package = Package::default();
 
@@ -106,9 +106,9 @@ impl Into<Package> for PackageResource {
     }
 }
 
-impl PackageResource {
+impl PackageConfig {
     pub fn from_toml(package_content: &str) -> Self {
-        let package: PackageResource =
+        let package: Self =
             toml::from_str(&package_content).expect("Failure reading package");
 
         package

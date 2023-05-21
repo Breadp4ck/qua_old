@@ -39,13 +39,13 @@ pub enum EmiterType {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub enum Round {
+pub enum RoundType {
     Default(RoundIndex),
     Final,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy)]
-pub enum Question {
+#[derive(Hash, PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]
+pub enum QuestionType {
     Final(QuestionIndex),
     Normal(RoundIndex, ThemeIndex, QuestionIndex),
 }
@@ -145,7 +145,7 @@ impl GameState {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct GameContext {
-    pub round: Round,
+    pub round: RoundType,
     pub host: Option<PersonName>,
     pub lead: Option<PersonName>,
     pub question: Option<Question>,
@@ -154,7 +154,7 @@ pub struct GameContext {
 impl Default for GameContext {
     fn default() -> Self {
         Self {
-            round: Round::Default(0.into()),
+            round: RoundType::Default(0.into()),
             host: None,
             lead: None,
             question: None,

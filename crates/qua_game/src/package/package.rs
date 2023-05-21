@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::game::Question;
+use crate::game::QuestionType;
 
 use super::round::Round;
 
@@ -11,10 +11,10 @@ pub struct Package {
 }
 
 impl Package {
-    pub fn mark_answered(&mut self, question: &Question) {
+    pub fn mark_answered(&mut self, question: &QuestionType) {
         match question {
-            Question::Final(_) => {}
-            Question::Normal(round_idx, theme_idx, question_idx) => {
+            QuestionType::Final(_) => {}
+            QuestionType::Normal(round_idx, theme_idx, question_idx) => {
                 self.rounds[round_idx.idx()]
                     .themes[theme_idx.idx()]
                     .questions[question_idx.idx()].answered = true;
