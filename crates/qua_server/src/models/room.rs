@@ -1,5 +1,5 @@
 use log::*;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use axum::extract::ws::{Message, WebSocket};
 use futures::{
@@ -9,20 +9,22 @@ use futures::{
 use qua_game::{
     game::{ClientMessage, Game, ServerMessage},
     package::prelude::Package,
-    person::Person,
+    person::{Person, PersonName},
 };
 use tokio::sync::Mutex;
 
+type Connections = HashMap<PersonName, SplitSink<WebSocket, Message>>;
+
 pub struct Room {
     game: Arc<Mutex<Game>>,
-    senders: Arc<Mutex<Vec<SplitSink<WebSocket, Message>>>>,
+    connections: Arc<Mutex<Connections>>,
 }
 
 impl Room {
     pub fn new(package: Package) -> Self {
         Self {
             game: Arc::new(Mutex::new(Game::new(package))),
-            senders: Arc::new(Mutex::new(Vec::new())),
+            connections: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 
@@ -33,8 +35,8 @@ impl Room {
         let (sender, mut receiver) = socket.split();
         let game = self.game.clone();
 
-        self.senders.lock().await.push(sender);
-        let senders = self.senders.clone();
+        self.connections.lock().await.insert(author.clone(), sender);
+        let senders = self.connections.clone();
 
         tokio::spawn(async move {
             info!("Person connected.");
@@ -80,11 +82,10 @@ impl Room {
                                 ClientMessage::SyncRequest => {
                                     let game = game.lock().await;
 
-                                    // TODO: send only to one person
-                                    // Self::send(&mut sender, &ServerMessage::SyncResponse(game.clone()));
                                     let mut senders = senders.lock().await;
-                                    Self::broadcast(
+                                    Self::send(
                                         &mut senders,
+                                        &author,
                                         &ServerMessage::SyncResponse(game.clone()),
                                     )
                                     .await;
@@ -103,11 +104,20 @@ impl Room {
         });
     }
 
-    async fn broadcast(
-        senders: &mut Vec<SplitSink<WebSocket, Message>>,
+    async fn send(
+        senders: &mut Connections,
+        receiver: &PersonName,
         server_message: &ServerMessage,
     ) {
-        for sender in senders.iter_mut() {
+        let sender = senders.get_mut(receiver).unwrap();
+        let message = Message::Text(serde_json::to_string(&server_message).unwrap());
+        if sender.send(message).await.is_err() {
+            eprintln!("Client disconnected");
+        };
+    }
+
+    async fn broadcast(senders: &mut Connections, server_message: &ServerMessage) {
+        for sender in senders.values_mut() {
             let message = Message::Text(serde_json::to_string(&server_message).unwrap());
             if sender.send(message).await.is_err() {
                 eprintln!("Client disconnected");
