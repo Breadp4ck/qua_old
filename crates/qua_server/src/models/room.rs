@@ -7,9 +7,9 @@ use futures::{
     SinkExt,
 };
 use qua_game::{
-    game::{ClientMessage, Game, ServerMessage, StatelessInputEvent},
+    game::{ClientMessage, Game, ServerMessage},
     package::prelude::Package,
-    person::{Person, PersonName},
+    person::Person,
 };
 use tokio::sync::Mutex;
 
@@ -108,9 +108,7 @@ impl Room {
         server_message: &ServerMessage,
     ) {
         for sender in senders.iter_mut() {
-            let message = Message::Text(
-                serde_json::to_string(&server_message).unwrap(),
-            );
+            let message = Message::Text(serde_json::to_string(&server_message).unwrap());
             if sender.send(message).await.is_err() {
                 eprintln!("Client disconnected");
             };

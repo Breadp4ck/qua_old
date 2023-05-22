@@ -1,5 +1,6 @@
 use log::*;
-use std::ops::Deref;
+use reqwest::multipart::{Form, Part};
+use std::{ops::Deref, io::Bytes};
 
 use ewebsock::{WsMessage, WsReceiver, WsSender};
 use qua_game::{game::ClientMessage, person::Person};
@@ -48,10 +49,12 @@ impl ToString for Ticket {
 pub struct RoomService;
 
 impl RoomService {
-    pub async fn create_room() -> RoomCode {
+    pub async fn create_room(file: Vec<u8>) -> RoomCode {
+        let form = Form::new().part("pack.qua", Part::bytes(file));
+
         let room_code: RoomCode = reqwest::Client::new()
-            .get("http://localhost:8000/api/room/create")
-            // .json(&request)
+            .post("http://localhost:8000/api/room/create")
+            .multipart(form)
             .send()
             .await
             .expect("Failed send request")
@@ -71,6 +74,24 @@ impl RoomService {
             .expect("Failed to connect");
 
         client
+    }
+
+    pub async fn get_room_package(room_code: &RoomCode) -> Vec<u8> {
+        let room_code = room_code.to_string();
+
+        let file = reqwest::Client::new()
+            .get(format!(
+                "http://localhost:8000/api/room/package/{room_code}"
+            ))
+            .send()
+            .await
+            .expect("Failed send request")
+            .bytes()
+            .await
+            .expect("Failed to obtain file")
+            .to_vec();
+
+        file
     }
 
     pub async fn obtain_ticket(person: Person, code: RoomCode) -> Ticket {

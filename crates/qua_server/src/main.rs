@@ -4,7 +4,6 @@ use axum::{
     Router,
 };
 use http::header;
-use log::*;
 // use sqlx::postgres::PgPool;
 // use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
@@ -22,7 +21,7 @@ use routes::prelude::*;
 use services::prelude::*;
 // use errors::prelude::*;
 
-// const UPLOADS_DIRECTORY: &str = "uploads";
+const UPLOADS_DIRECTORY: &str = "uploads";
 const MAX_TICKET_ID_LENGTH: usize = 12;
 const MAX_ROOM_CODE_LENGTH: usize = 5;
 const TICKET_EXPIRE_TIME_SECONDS: u64 = 60;
@@ -73,12 +72,18 @@ async fn main() {
         // pool,
     };
 
+    match std::fs::create_dir(UPLOADS_DIRECTORY) {
+        Err(why) => log::warn!("! {:?}", why.kind()),
+        Ok(_) => {},
+    }
+
     let app = Router::new()
         .route("/api/room/join/:ticket", get(join_room))
         .route("/api/room/obtain_ticket", post(obtain_ticket))
-        .route("/api/room/create", get(create_room))
+        .route("/api/room/create", post(create_room))
+        .route("/api/room/package/:room_code", get(get_room_package))
         .layer(cors)
-        .layer(DefaultBodyLimit::disable())
+        .layer(DefaultBodyLimit::max(100 * 1024 * 1024))
         .with_state(state);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8000));

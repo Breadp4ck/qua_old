@@ -10,7 +10,7 @@ use std::{
 use web_sys::*;
 use zip::{read::ZipFile, ZipArchive};
 
-struct PackageResourceItem {
+pub struct PackageResourceItem {
     pub title: String,
     pub cost: Scores,
     pub question_url_content: ResourceUrlContent,
@@ -20,7 +20,7 @@ struct PackageResourceItem {
 }
 
 #[derive(Clone)]
-enum ResourceUrlContent {
+pub enum ResourceUrlContent {
     Text { url: String },
     Picture { url: String },
     Video { url: String },
@@ -28,7 +28,7 @@ enum ResourceUrlContent {
     Empty,
 }
 
-struct PackageResource {
+pub struct PackageResource {
     config: PackageConfig,
     urls: HashMap<QuestionType, (ResourceUrlContent, ResourceUrlContent)>,
 }
@@ -62,7 +62,7 @@ impl PackageResource {
                             let file = zip.by_name(&picture_src).unwrap();
                             let url = Self::create_url(file);
                             ResourceUrlContent::Picture { url }
-                        },
+                        }
                         QuestionContent::Sound {
                             sound_src,
                             cover_src,
@@ -70,15 +70,13 @@ impl PackageResource {
                             let file = zip.by_name(&sound_src).unwrap();
                             let url = Self::create_url(file);
                             ResourceUrlContent::Sound { url }
-                        },
+                        }
                         QuestionContent::Video { video_src } => {
                             let file = zip.by_name(&video_src).unwrap();
                             let url = Self::create_url(file);
                             ResourceUrlContent::Video { url }
-                        },
-                        QuestionContent::Empty => {
-                            ResourceUrlContent::Empty
-                        },
+                        }
+                        QuestionContent::Empty => ResourceUrlContent::Empty,
                     };
 
                     let answer_url_content = match &item.answer_content {
@@ -91,7 +89,7 @@ impl PackageResource {
                             let file = zip.by_name(&picture_src).unwrap();
                             let url = Self::create_url(file);
                             ResourceUrlContent::Picture { url }
-                        },
+                        }
                         AnswerContent::Sound {
                             sound_src,
                             cover_src,
@@ -99,18 +97,20 @@ impl PackageResource {
                             let file = zip.by_name(&sound_src).unwrap();
                             let url = Self::create_url(file);
                             ResourceUrlContent::Sound { url }
-                        },
+                        }
                         AnswerContent::Video { video_src } => {
                             let file = zip.by_name(&video_src).unwrap();
                             let url = Self::create_url(file);
                             ResourceUrlContent::Video { url }
-                        },
-                        AnswerContent::Empty => {
-                            ResourceUrlContent::Empty
-                        },
+                        }
+                        AnswerContent::Empty => ResourceUrlContent::Empty,
                     };
 
-                    let index = QuestionType::Normal(round_idx.into(), theme_idx.into(), item_idx.into());
+                    let index = QuestionType::Normal(
+                        (1 + round_idx).into(),
+                        (1 + theme_idx).into(),
+                        (1 + item_idx).into(),
+                    );
                     urls.insert(index, (question_url_content, answer_url_content));
                 }
             }
@@ -183,9 +183,9 @@ impl PackageResource {
     fn get_item_data(&self, question: QuestionType) -> Option<ItemData> {
         match question {
             QuestionType::Normal(round_index, theme_index, question_index) => {
-                let round = &self.config.rounds[round_index.idx()];
-                let theme = &round.themes[theme_index.idx()];
-                let question = &theme.items[question_index.idx()];
+                let round = &self.config.rounds[round_index.idx() - 1];
+                let theme = &round.themes[theme_index.idx() - 1];
+                let question = &theme.items[question_index.idx() - 1];
 
                 return Some(question.clone());
             }

@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use serde::{Serialize, Deserialize};
 
 #[derive(Hash, Eq, PartialEq, Clone, Copy, Serialize, Deserialize)]
@@ -12,5 +14,11 @@ impl RoomId {
 
     pub fn next(&mut self) {
         self.id += 1;
+    }
+}
+
+impl Display for RoomId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.id)
     }
 }

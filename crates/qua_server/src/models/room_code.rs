@@ -8,6 +8,12 @@ pub struct RoomCode {
     code: String,
 }
 
+impl From<String> for RoomCode {
+    fn from(code: String) -> Self {
+        Self { code }
+    }
+}
+
 impl RoomCode {
     pub fn random() -> Self {
         let rng = rand::thread_rng();
@@ -19,5 +25,11 @@ impl RoomCode {
             .to_ascii_uppercase();
 
         Self { code }
+    }
+}
+
+impl ToString for RoomCode {
+    fn to_string(&self) -> String {
+        self.code.clone()
     }
 }

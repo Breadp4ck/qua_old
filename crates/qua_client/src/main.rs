@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use contexts::package_resource::PackageResource;
 use dioxus::prelude::*;
 use dioxus_router::*;
 use fermi::prelude::*;
@@ -17,10 +18,10 @@ use wasm_sockets::PollingClient;
 
 static TICKET: Atom<Option<Ticket>> = |_| None;
 static ROOM_CODE: Atom<Option<RoomCode>> = |_| None;
+static PACKAGE_RESOURCE: Atom<Option<Arc<Mutex<PackageResource>>>> = |_| None;
 
 type InnerConnection = Arc<Mutex<PollingClient>>;
 type Connection = Option<InnerConnection>;
-
 
 fn main() {
     wasm_logger::init(wasm_logger::Config::default());

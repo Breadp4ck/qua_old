@@ -10,6 +10,7 @@ qua_game = { path = "../qua_game", version = "0.1.0" }
 qua_package = { path = "../qua_package", version = "0.1.0" }
 axum = { workspace = true, features = ["ws", "headers", "macros", "multipart"] }
 tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true, features = ["io"] }
 serde = { workspace = true, features = ["derive"] }
 jsonwebtoken.workspace = true
 serde_json.workspace = true
