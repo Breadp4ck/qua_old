@@ -1,4 +1,5 @@
 use log::*;
+use room_code::RoomCode;
 use std::{collections::HashMap, sync::Arc};
 
 use axum::extract::ws::{Message, WebSocket};
@@ -11,18 +12,28 @@ use qua_game::{
     package::prelude::Package,
     person::{Person, PersonName},
 };
-use tokio::sync::Mutex;
+use tokio::sync::{mpsc::UnboundedSender, Mutex};
+
+use crate::{models::room_code, services::prelude::*};
 
 type Connections = HashMap<PersonName, SplitSink<WebSocket, Message>>;
 
 pub struct Room {
+    code: RoomCode,
+    room_service_sender: UnboundedSender<RoomServiceEvent>,
     game: Arc<Mutex<Game>>,
     connections: Arc<Mutex<Connections>>,
 }
 
 impl Room {
-    pub fn new(package: Package) -> Self {
+    pub fn new(
+        package: Package,
+        code: RoomCode,
+        room_service_sender: UnboundedSender<RoomServiceEvent>,
+    ) -> Self {
         Self {
+            code,
+            room_service_sender,
             game: Arc::new(Mutex::new(Game::new(package))),
             connections: Arc::new(Mutex::new(HashMap::new())),
         }
@@ -37,6 +48,8 @@ impl Room {
 
         self.connections.lock().await.insert(author.clone(), sender);
         let senders = self.connections.clone();
+        let room_code = self.code.clone();
+        let room_service_sender = self.room_service_sender.clone();
 
         tokio::spawn(async move {
             info!("Person connected.");
@@ -93,9 +106,26 @@ impl Room {
                             }
                         }
                         Message::Close(_) => {
-                            // TODO: remove sender from senders, close socket
-                            // and send broadcast PlayerDisconnected event
                             info!("Person disconnected.");
+                            let mut senders = senders.lock().await;
+                            senders.remove(&author);
+
+                            if senders.len() == 0 {
+                                match room_service_sender
+                                    .send(RoomServiceEvent::RoomEmptied(room_code.clone()))
+                                {
+                                    Ok(_) => {
+                                        info!("Room with code '{}' deleted.", room_code.to_string())
+                                    }
+                                    Err(e) => warn!(
+                                        "Room with code '{}' is not properly deleted: {}.",
+                                        room_code.to_string(),
+                                        e
+                                    ),
+                                }
+                            }
+
+                            return;
                         }
                         _ => (),
                     }

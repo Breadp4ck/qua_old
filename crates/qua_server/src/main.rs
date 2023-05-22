@@ -29,9 +29,8 @@ const TICKET_EXPIRE_TIME_SECONDS: u64 = 60;
 #[derive(Clone)]
 pub struct AppState {
     pub ticket_service: TicketService,
-    pub lobby_service: LobbyService,
-    pub game_service: GameService,
-    pub connection_event_sender: UnboundedSender<GameConnectionEvent>,
+    pub room_service: RoomService,
+    pub room_event_sender: UnboundedSender<RoomServiceEvent>,
     // pub pool: PgPool,
 }
 
@@ -60,15 +59,13 @@ async fn main() {
         .allow_origin(Any);
 
     let ticket_service = TicketService::new();
-    let lobby_service = LobbyService::new();
-    let game_service = GameService::new();
-    let connection_event_sender = game_service.event_sender();
+    let room_service = RoomService::new();
+    let room_event_sender = room_service.sender();
 
     let state = AppState {
         ticket_service,
-        lobby_service,
-        game_service,
-        connection_event_sender,
+        room_service,
+        room_event_sender,
         // pool,
     };
 

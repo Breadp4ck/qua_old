@@ -19,8 +19,7 @@ pub async fn create_room(
         return Err(RoomError::MissingPackage);
     };
 
-    let (room_id, room_code) = app.lobby_service.create_room(&data).await;
-    app.game_service.create_room(room_id).await;
+    let room_code = app.room_service.create_room(&data).await;
 
     Ok(Json(room_code))
 }
