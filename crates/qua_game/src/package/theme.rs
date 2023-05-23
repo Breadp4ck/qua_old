@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use super::question::Question;
+use super::question::QuestionState;
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Theme {
-    pub questions: Vec<Question>,
+pub struct ThemeState {
+    pub questions: Vec<QuestionState>,
 }
 
 #[derive(Hash, PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]

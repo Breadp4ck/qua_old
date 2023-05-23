@@ -21,6 +21,15 @@ impl Person {
             Person::Host(host) => host.name(),
         }
     }
+
+    pub fn is_host(&self) -> bool {
+        matches!(self, Person::Host(_))
+    }
+
+    pub fn is_player(&self) -> bool {
+        matches!(self, Person::Player(_))
+    }
+
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash, Default)]

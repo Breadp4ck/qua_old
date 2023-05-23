@@ -1,33 +1,45 @@
 use serde::{Deserialize, Serialize};
 
-use crate::game::QuestionType;
+use crate::game::Question;
 
-use super::round::Round;
+use super::{round::RoundState, question::QuestionState};
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Package {
-    pub rounds: Vec<Round>,
-    pub final_round: Round,
+pub struct PackageState {
+    pub rounds: Vec<RoundState>,
+    pub final_round: RoundState,
 }
 
-impl Package {
-    pub fn mark_answered(&mut self, question: &QuestionType) {
+impl PackageState {
+    pub fn mark_answered(&mut self, question: &Question) {
         match question {
-            QuestionType::Final(_) => {}
-            QuestionType::Normal(round_idx, theme_idx, question_idx) => {
+            Question::Final(_) => {}
+            Question::Normal(round_idx, theme_idx, question_idx) => {
                 self.rounds[round_idx.idx()]
                     .themes[theme_idx.idx()]
                     .questions[question_idx.idx()].answered = true;
             }
         }
     }
+
+    pub fn get(&self, question: &Question) -> &QuestionState{
+        match question {
+            Question::Final(_) => todo!(),
+            Question::Normal(round_idx, theme_idx, question_idx) => {
+                &self.rounds[round_idx.idx()]
+                    .themes[theme_idx.idx()]
+                    .questions[question_idx.idx()]
+            }
+        }
+
+    }
 }
 
-impl Default for Package {
+impl Default for PackageState {
     fn default() -> Self {
         Self {
             rounds: vec![],
-            final_round: Round { themes: vec![] },
+            final_round: RoundState { themes: vec![] },
         }
     }
 }

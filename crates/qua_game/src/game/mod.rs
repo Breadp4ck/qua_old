@@ -4,80 +4,23 @@ use std::collections::HashMap;
 
 use crate::package::prelude::*;
 use crate::person::prelude::*;
-use crate::person::*;
-use crate::scores::Scores;
 
-mod board_game_state;
-mod greet_game_state;
-mod init_game_state;
-mod overview_game_state;
-mod question_answer_game_state;
-mod question_appearance_game_state;
-mod question_asking_game_state;
-mod question_matter_game_state;
-mod question_qua_answering_game_state;
-mod question_qua_queue_game_state;
-mod question_qua_waiting_game_state;
+mod game_context;
+mod states;
 
-use board_game_state::*;
-use greet_game_state::*;
-use init_game_state::*;
-use overview_game_state::*;
-use question_answer_game_state::*;
-use question_appearance_game_state::*;
-use question_asking_game_state::*;
-use question_matter_game_state::*;
-use question_qua_answering_game_state::*;
-use question_qua_queue_game_state::*;
-use question_qua_waiting_game_state::*;
-
-#[derive(PartialEq)]
-pub enum EmiterType {
-    Host,
-    Lead,
-    Player,
-}
+use states::prelude::*;
+use game_context::GameContext;
 
 #[derive(Clone, Serialize, Deserialize)]
-pub enum RoundType {
-    Default(RoundIndex),
+pub enum Round {
+    Normal(RoundIndex),
     Final,
 }
 
 #[derive(Hash, PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]
-pub enum QuestionType {
+pub enum Question {
     Final(QuestionIndex),
     Normal(RoundIndex, ThemeIndex, QuestionIndex),
-}
-
-#[derive(Serialize, Deserialize)]
-pub enum InputEvent {
-    Begin,
-    SelectQuestion(Question),
-    Answer,
-    Score,
-    Skip,
-    Timeout,
-}
-
-#[derive(Serialize, Deserialize)]
-pub enum StatelessInputEvent {
-    AssignLeadPlayer(PersonName),
-    GivePlayerScores(PersonName, Scores),
-    TakePlayerScores(PersonName, Scores),
-    SetPlayerScores(PersonName, Scores),
-    KickPlayer(PersonName),
-}
-
-#[derive(Serialize, Deserialize)]
-pub enum StateEvent {}
-
-#[derive(Serialize, Deserialize)]
-pub enum Command {
-    StatelessInput(StatelessInputEvent),
-    Input(InputEvent),
-    SyncRequest,
-    SyncResponse(Game),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -96,76 +39,10 @@ pub enum ServerMessage {
     PersonDisconnected(PersonName),
 }
 
-trait GameStateInteraction {
-    fn handle_event(
-        &mut self,
-        context: &mut GameContext,
-        event: &InputEvent,
-        author: &mut Person,
-    ) -> Option<GameState>;
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-pub enum GameState {
-    Init(InitGameState),
-    Greet(GreetGameState),
-    Overview(OverviewGameState),
-    Board(BoardGameState),
-    QuestionAppearance(QuestionAppearanceGameState),
-    QuestionMatter(QuestionMatterGameState),
-    QuestionAsking(QuestionAskingGameState),
-    QuestionQuaWaiting(QuestionQuaWaitingGameState),
-    QuestionQuaQueue(QuestionQuaQueueGameState),
-    QuestionQuaAnswering(QuestionQuaAnsweringGameState),
-    QuestionAnswer(QuestionAnswerGameState),
-}
-
-impl GameState {
-    fn handle_input(
-        &mut self,
-        context: &mut GameContext,
-        event: &InputEvent,
-        author: &mut Person,
-    ) -> Option<Self> {
-        match self {
-            GameState::Init(state) => state.handle_event(context, event, author),
-            GameState::Greet(state) => state.handle_event(context, event, author),
-            GameState::Overview(state) => state.handle_event(context, event, author),
-            GameState::Board(state) => state.handle_event(context, event, author),
-            GameState::QuestionAppearance(state) => state.handle_event(context, event, author),
-            GameState::QuestionMatter(state) => state.handle_event(context, event, author),
-            GameState::QuestionAsking(state) => state.handle_event(context, event, author),
-            GameState::QuestionQuaWaiting(state) => state.handle_event(context, event, author),
-            GameState::QuestionQuaQueue(state) => state.handle_event(context, event, author),
-            GameState::QuestionQuaAnswering(state) => state.handle_event(context, event, author),
-            GameState::QuestionAnswer(state) => state.handle_event(context, event, author),
-        }
-    }
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-pub struct GameContext {
-    pub round: RoundType,
-    pub host: Option<PersonName>,
-    pub lead: Option<PersonName>,
-    pub question: Option<Question>,
-}
-
-impl Default for GameContext {
-    fn default() -> Self {
-        Self {
-            round: RoundType::Default(0.into()),
-            host: None,
-            lead: None,
-            question: None,
-        }
-    }
-}
-
 #[serde_as]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Game {
-    package: Package,
+    package: PackageState,
     state: GameState,
     #[serde_as(as = "Vec<(_, _)>")]
     persons: HashMap<PersonName, Person>,
@@ -173,10 +50,10 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(package: Package) -> Self {
+    pub fn new(package: PackageState) -> Self {
         Game {
             package,
-            state: GameState::Init(InitGameState::default()),
+            state: GameState::default(),
             persons: HashMap::new(),
             context: GameContext::default(),
         }
@@ -212,8 +89,10 @@ impl Game {
     pub fn handle_input(&mut self, event: &InputEvent, author: &PersonName) {
         self.state.handle_input(
             &mut self.context,
-            &event,
-            self.persons.get_mut(author).unwrap(),
+            event,
+            author,
+            &mut self.persons,
+            &mut self.package
         );
     }
 

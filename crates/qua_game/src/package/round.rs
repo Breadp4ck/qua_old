@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use super::theme::Theme;
+use super::theme::ThemeState;
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Round {
-    pub themes: Vec<Theme>,
+pub struct RoundState {
+    pub themes: Vec<ThemeState>,
 }
 
 #[derive(Hash, PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]

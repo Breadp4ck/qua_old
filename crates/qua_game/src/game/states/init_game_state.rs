@@ -8,9 +8,12 @@ impl GameStateInteraction for InitGameState {
         &mut self,
         _: &mut GameContext,
         event: &InputEvent,
-        author: &mut Person,
+        author: &PersonName,
+        persons: &mut Persons,
+        _: &mut PackageState,
     ) -> Option<GameState> {
-        match (event, author) {
+        let person = persons.get(author).unwrap();
+        match (event, person) {
             (InputEvent::Begin, Person::Host(_)) => {
                 Some(GameState::Greet(GreetGameState::default()))
             }
