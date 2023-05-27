@@ -1,13 +1,10 @@
-use dioxus::prelude::*;
-use qua_game::{
-    game::Game,
-    person::Personality,
-};
 use super::prelude::*;
+use dioxus::prelude::*;
+use qua_game::prelude::*;
 
 pub fn game_host(cx: Scope) -> Element {
     let game = use_shared_state::<Game>(cx).unwrap();
-    let host = use_shared_state::<UpdateHost>(cx).unwrap();
+    let _ = use_shared_state::<HostUpdate>(cx).unwrap();
 
     match game.read().get_host() {
         Some(host) => log::info!("{:?}", host.name()),

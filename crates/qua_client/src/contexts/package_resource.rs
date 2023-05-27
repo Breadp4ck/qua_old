@@ -1,14 +1,12 @@
-use qua_game::{game::Question, package::prelude::*, scores::Scores};
-use qua_package::package_config::{
-    AnswerContent, ItemData, PackageConfig, QuestionContent, RoundData, ThemeData,
-};
+use qua_game::{game::Question, scores::Scores};
+use qua_package::package_config::{AnswerContent, ItemData, PackageConfig, QuestionContent};
 use std::{
     collections::HashMap,
     io::{Cursor, Read},
     path::Path,
 };
 use web_sys::*;
-use zip::{read::ZipFile, ZipArchive};
+use zip::read::ZipFile;
 
 pub struct PackageResourceItem {
     pub title: String,
@@ -46,8 +44,7 @@ impl PackageResource {
             panic!("Could not find Pack.toml") // TODO: error: Pack.toml not found
         };
 
-        let mut urls: HashMap<Question, (ResourceUrlContent, ResourceUrlContent)> =
-            HashMap::new();
+        let mut urls: HashMap<Question, (ResourceUrlContent, ResourceUrlContent)> = HashMap::new();
 
         for (round_idx, round) in config.rounds.iter().enumerate() {
             for (theme_idx, theme) in round.themes.iter().enumerate() {
@@ -106,11 +103,8 @@ impl PackageResource {
                         AnswerContent::Empty => ResourceUrlContent::Empty,
                     };
 
-                    let index = Question::Normal(
-                        round_idx.into(),
-                        theme_idx.into(),
-                        item_idx.into(),
-                    );
+                    let index =
+                        Question::Normal(round_idx.into(), theme_idx.into(), item_idx.into());
                     urls.insert(index, (question_url_content, answer_url_content));
                 }
             }
@@ -147,7 +141,7 @@ impl PackageResource {
             "txt" => {
                 properties.type_("text/plain");
             }
-            "txt" => {
+            "md" => {
                 properties.type_("text/x-markdown");
             }
             "mp3" => {
@@ -163,8 +157,6 @@ impl PackageResource {
         let blob = Blob::new_with_u8_array_sequence_and_options(&array, &properties).unwrap();
         Url::create_object_url_with_blob(&blob).unwrap()
     }
-
-    fn validate(&mut self) {}
 
     pub fn get(&self, question: Question) -> PackageResourceItem {
         let (question_url_content, answer_url_content) = self.urls.get(&question).unwrap(); // TODO: wrap result
@@ -183,6 +175,7 @@ impl PackageResource {
     fn get_item_data(&self, question: Question) -> Option<ItemData> {
         match question {
             Question::Normal(round_index, theme_index, question_index) => {
+                // TODO: Maybe return None
                 let round = &self.config.rounds[round_index.idx()];
                 let theme = &round.themes[theme_index.idx()];
                 let question = &theme.items[question_index.idx()];
@@ -193,7 +186,5 @@ impl PackageResource {
                 todo!()
             }
         }
-
-        None
     }
 }

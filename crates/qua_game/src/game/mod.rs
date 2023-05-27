@@ -5,11 +5,16 @@ use std::collections::HashMap;
 use crate::package::prelude::*;
 use crate::person::prelude::*;
 
-mod game_context;
-mod states;
+pub mod client_server;
+pub mod game_context;
+pub mod game_events;
+pub mod game_inputs;
+pub mod states;
 
-use game_context::GameContext;
-pub use states::prelude::*;
+pub use game_context::*;
+pub use game_events::*;
+pub use game_inputs::*;
+pub use states::*;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub enum Round {
@@ -21,22 +26,6 @@ pub enum Round {
 pub enum Question {
     Final(QuestionIndex),
     Normal(RoundIndex, ThemeIndex, QuestionIndex),
-}
-
-#[derive(Serialize, Deserialize)]
-pub enum ClientMessage {
-    Input(InputEvent),
-    StatelessInput(StatelessInputEvent),
-    SyncRequest,
-}
-
-#[derive(Serialize, Deserialize)]
-pub enum ServerMessage {
-    Input(InputEvent, PersonName),
-    StatelessInput(StatelessInputEvent, PersonName),
-    SyncResponse(Game),
-    PersonConnected(Person),
-    PersonDisconnected(PersonName),
 }
 
 #[serde_as]
@@ -69,14 +58,28 @@ impl Game {
         self.persons = new_game.persons;
         self.context = new_game.context;
 
-        self.context.events.push(GameEvent::PlayersUpdated);
-        self.context.events.push(GameEvent::HostUpdated);
         self.context
             .events
-            .push(GameEvent::BoardUpdated(BoardState::Text("Synced".into())));
+            .push(GameEvent::Player(PlayerUpdate::Sync));
+        self.context.events.push(GameEvent::Host(HostUpdate::Sync));
         self.context
             .events
-            .push(GameEvent::InfoMessage("Synced".into()));
+            .push(GameEvent::Board(BoardUpdate::Text("КЕК".into())))
+
+        // TODO: different board states
+        // match self.state {
+        //     GameState::Init(_) => todo!(),
+        //     GameState::Greet(_) => todo!(),
+        //     GameState::Overview(_) => todo!(),
+        //     GameState::Board(_) => todo!(),
+        //     GameState::QuestionAppearance(_) => todo!(),
+        //     GameState::QuestionMatter(_) => todo!(),
+        //     GameState::QuestionAsking(_) => todo!(),
+        //     GameState::QuestionQuaWaiting(_) => todo!(),
+        //     GameState::QuestionQuaQueue(_) => todo!(),
+        //     GameState::QuestionQuaAnswering(_) => todo!(),
+        //     GameState::QuestionAnswer(_) => todo!(),
+        // }
     }
 
     pub fn get_players(&self) -> Vec<Player> {
@@ -117,20 +120,34 @@ impl Game {
     pub fn add_person(&mut self, person: Person) {
         if person.is_host() {
             self.context.host = Some(person.name().clone());
-            self.persons.insert(person.name().clone(), person);
-            self.context.events.push(GameEvent::HostUpdated);
+            self.persons.insert(person.name().clone(), person.clone());
+            self.context
+                .events
+                .push(GameEvent::Host(HostUpdate::Connected {
+                    name: person.name().clone(),
+                }));
         } else {
-            self.persons.insert(person.name().clone(), person);
-            self.context.events.push(GameEvent::PlayersUpdated);
+            self.persons.insert(person.name().clone(), person.clone());
+            self.context
+                .events
+                .push(GameEvent::Player(PlayerUpdate::Connected {
+                    name: person.name().clone(),
+                }));
         }
     }
 
     pub fn remove_person(&mut self, name: PersonName) {
         let person = self.persons.remove(&name).unwrap();
         if person.is_host() {
-            self.context.events.push(GameEvent::HostUpdated);
+            self.context
+                .events
+                .push(GameEvent::Host(HostUpdate::Disconnected));
         } else {
-            self.context.events.push(GameEvent::PlayersUpdated);
+            self.context
+                .events
+                .push(GameEvent::Player(PlayerUpdate::Disconnected {
+                    name: person.name().clone(),
+                }));
         }
     }
 
@@ -146,9 +163,64 @@ impl Game {
         }
     }
 
-    pub fn handle_stateless_input(&mut self, _event: &StatelessInputEvent, _author: &PersonName) {}
+    pub fn handle_stateless_input(&mut self, event: &StatelessInputEvent, author: &PersonName) {
+        let person = self.persons.get(author).unwrap();
+        match (event, person) {
+            (StatelessInputEvent::AssignLeadPlayer(name), Person::Host(_)) => {
+                self.context.lead = Some(name.clone());
+                    self.context
+                        .events
+                        .push(GameEvent::Player(PlayerUpdate::BecomeLead {
+                            name: name.clone(),
+                        }));
+            },
+            (StatelessInputEvent::GivePlayerScores(name, scores), Person::Host(_)) => {
+                if let Person::Player(player) = self.persons.get_mut(name).unwrap() {
+                    player.add_scores(scores.clone());
+                    self.context
+                        .events
+                        .push(GameEvent::Player(PlayerUpdate::ScoresChanges {
+                            name: player.name().clone(),
+                            change: ScoreChange::Add { amount: *scores },
+                            new_scores: player.scores(),
+                        }));
+                }
+            },
+            (StatelessInputEvent::TakePlayerScores(name, scores), Person::Host(_)) => {
+                if let Person::Player(player) = self.persons.get_mut(name).unwrap() {
+                    player.remove_scores(scores.clone());
+                    self.context
+                        .events
+                        .push(GameEvent::Player(PlayerUpdate::ScoresChanges {
+                            name: player.name().clone(),
+                            change: ScoreChange::Remove { amount: *scores },
+                            new_scores: player.scores(),
+                        }));
+                }
+            },
+            (StatelessInputEvent::SetPlayerScores(name, scores), Person::Host(_)) => {
+                if let Person::Player(player) = self.persons.get_mut(name).unwrap() {
+                    player.set_scores(scores.clone());
+                    self.context
+                        .events
+                        .push(GameEvent::Player(PlayerUpdate::ScoresChanges {
+                            name: player.name().clone(),
+                            change: ScoreChange::Set { from: *scores },
+                            new_scores: player.scores(),
+                        }));
+                }
+            },
+            _ => (),
+        }
+    }
 }
 
 pub mod prelude {
     pub use super::*;
+
+    pub use client_server::*;
+    pub use game_context::*;
+    pub use game_events::*;
+    pub use game_inputs::*;
+    pub use states::*;
 }

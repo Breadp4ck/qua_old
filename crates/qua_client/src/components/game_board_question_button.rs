@@ -1,9 +1,6 @@
-use dioxus::prelude::*;
-use qua_game::{
-    game::{Game, Question, InputEvent, ClientMessage},
-    scores::Scores,
-};
 use crate::Connection;
+use dioxus::prelude::*;
+use qua_game::prelude::*;
 
 #[derive(PartialEq, Props)]
 pub struct GameBoardQuestionButtonProps {
@@ -13,10 +10,7 @@ pub struct GameBoardQuestionButtonProps {
 }
 
 pub fn game_board_question_button(cx: Scope<GameBoardQuestionButtonProps>) -> Element {
-    let game = use_shared_state::<Game>(cx).unwrap();
-    let mut maybe_connection = use_shared_state::<Connection>(cx)
-        .unwrap()
-        .write_silent();
+    let maybe_connection = use_shared_state::<Connection>(cx).unwrap().write_silent();
 
     let client = if let Some(connection) = &*maybe_connection {
         Some(connection.clone())
@@ -32,11 +26,11 @@ pub fn game_board_question_button(cx: Scope<GameBoardQuestionButtonProps>) -> El
         cx.spawn({
             async move {
                 if let Some(client) = client {
-                    let mut client = client.lock().await;
+                    let client = client.lock().await;
                     client.send_string(
-                        &serde_json::to_string(&ClientMessage::Input(
-                            InputEvent::SelectQuestion(question),
-                        ))
+                        &serde_json::to_string(&ClientMessage::Input(InputEvent::SelectQuestion(
+                            question,
+                        )))
                         .unwrap(),
                     );
                 }
@@ -50,4 +44,3 @@ pub fn game_board_question_button(cx: Scope<GameBoardQuestionButtonProps>) -> El
         cx.render(rsx! { div { class: "question answered", "{cx.props.cost}" } })
     }
 }
-

@@ -20,11 +20,17 @@ impl GameStateInteraction for QuestionQuaWaitingGameState {
                     context.question = None;
                 }
 
+                context
+                    .events
+                    .push(GameEvent::Board(BoardUpdate::AnswerMedia(
+                        context.question.unwrap().clone(),
+                    )));
+
                 Some(GameState::QuestionAnswer(QuestionAnswerGameState::default()))
             }
-            (InputEvent::Answer(delta), Person::Player(_)) => {
-                Some(GameState::QuestionQuaQueue(QuestionQuaQueueGameState::new(author, &delta)))
-            }
+            (InputEvent::Answer(delta), Person::Player(_)) => Some(GameState::QuestionQuaQueue(
+                QuestionQuaQueueGameState::new(author, &delta),
+            )),
             _ => None,
         }
     }

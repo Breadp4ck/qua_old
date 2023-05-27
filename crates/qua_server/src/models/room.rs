@@ -7,11 +7,7 @@ use futures::{
     stream::{SplitSink, StreamExt},
     SinkExt,
 };
-use qua_game::{
-    game::{ClientMessage, Game, ServerMessage},
-    package::prelude::PackageState,
-    person::{Person, PersonName},
-};
+use qua_game::prelude::*;
 use tokio::sync::{mpsc::UnboundedSender, Mutex};
 
 use crate::{models::room_code, services::prelude::*};
@@ -107,6 +103,7 @@ impl Room {
                                     )
                                     .await;
                                 }
+                                ClientMessage::Kick(_) => todo!(),
                             }
                         }
                         Message::Close(_) => {

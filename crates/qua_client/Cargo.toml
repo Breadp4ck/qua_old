@@ -4,7 +4,6 @@ version = "0.1.0"
 authors = ["Breadp4ck <iii103@mail.ru>"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 qua_game = { path = "../qua_game", version = "0.1.0" }
 qua_package = { path = "../qua_package", version = "0.1.0" }
@@ -22,7 +21,6 @@ dioxus-router.workspace = true
 wasm-logger.workspace = true
 tokio.workspace = true
 async-timer.workspace = true
-ewebsock = { version = "0.2", default-features = false }
 wasm-sockets.workspace = true
 zip.workspace = true
 web-sys.workspace = true

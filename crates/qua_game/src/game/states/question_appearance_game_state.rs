@@ -6,7 +6,7 @@ pub struct QuestionAppearanceGameState;
 impl GameStateInteraction for QuestionAppearanceGameState {
     fn handle_event(
         &mut self,
-        _: &mut GameContext,
+        context: &mut GameContext,
         event: &InputEvent,
         author: &PersonName,
         persons: &mut Persons,
@@ -15,6 +15,11 @@ impl GameStateInteraction for QuestionAppearanceGameState {
         let person = persons.get(author).unwrap();
         match (event, person) {
             (InputEvent::Timeout, Person::Host(_)) => {
+                context
+                    .events
+                    .push(GameEvent::Board(BoardUpdate::QuestionMatter(
+                        context.question.unwrap().clone(),
+                    )));
                 Some(GameState::QuestionMatter(QuestionMatterGameState::default()))
             }
             _ => None,

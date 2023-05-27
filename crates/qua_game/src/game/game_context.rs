@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{Question, Round, GameEvent};
-
-use crate::person::prelude::*;
+use super::*;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct GameContext {

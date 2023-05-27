@@ -16,6 +16,7 @@ mod menu_card;
 mod nav;
 
 pub(crate) mod prelude {
+    pub use super::*;
 
     pub use super::game_answer_button::*;
     pub use super::game_board::*;

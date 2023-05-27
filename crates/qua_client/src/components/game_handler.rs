@@ -1,33 +1,29 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
+use async_timer::Interval;
 use dioxus::prelude::*;
 use fermi::use_read;
 use log::*;
-use qua_game::{
-    game::{ClientMessage, Game, GameEvent, ServerMessage},
-};
+use qua_game::prelude::*;
 use tokio::sync::Mutex;
 use wasm_sockets::{Message, PollingClient};
 
-use crate::{services::prelude::RoomService, Connection, TICKET};
-
-use super::prelude::*;
+use crate::*;
 
 #[derive(Clone)]
 struct GameSharedState {
-    board: UseSharedState<UpdateBoard>,
-    players: UseSharedState<UpdatePlayers>,
-    host: UseSharedState<UpdateHost>,
-    info: UseSharedState<UpdateInfo>,
+    board: UseSharedState<BoardUpdate>,
+    players: UseSharedState<PlayerUpdate>,
+    host: UseSharedState<HostUpdate>,
 }
 
 async fn ws(
     game: UseSharedState<Game>,
     state: GameSharedState,
-    mut client: Arc<Mutex<PollingClient>>,
+    client: Arc<Mutex<PollingClient>>,
     synced: bool,
 ) {
-    let mut interval = async_timer::Interval::platform_new(core::time::Duration::from_millis(200));
+    let mut interval = Interval::platform_new(Duration::from_millis(200));
     if !synced {
         let wanna_send =
             serde_json::to_string(&ClientMessage::SyncRequest).expect("Failed to serialize");
@@ -76,23 +72,18 @@ async fn ws(
 
                     while let Some(event) = game.write_silent().event_try_recv() {
                         match event {
-                            GameEvent::BoardUpdated(board_state) => match board_state {
-                                qua_game::game::BoardState::Text(text) => {
-                                    let mut board = state.board.write();
-                                    *board = UpdateBoard::Message(text);
-                                }
-                                qua_game::game::BoardState::Question(question) => {
-                                    let mut board = state.board.write();
-                                    *board = UpdateBoard::Question(question);
-                                },
-                                qua_game::game::BoardState::View(round) => {
-                                    let mut board = state.board.write();
-                                    *board = UpdateBoard::Board(round);
-                                }
+                            GameEvent::Board(update) => {
+                                let mut board = state.board.write();
+                                *board = update;
                             }
-                            GameEvent::PlayersUpdated => state.players.notify_consumers(),
-                            GameEvent::HostUpdated => state.host.notify_consumers(),
-                            GameEvent::InfoMessage(_) => state.info.notify_consumers(),
+                            GameEvent::Player(update) => {
+                                let mut players = state.players.write();
+                                *players = update;
+                            }
+                            GameEvent::Host(update) => {
+                                let mut host = state.host.write();
+                                *host = update;
+                            }
                         }
                     }
                 }
@@ -107,21 +98,19 @@ pub fn game_handler(cx: Scope) -> Element {
     let game = use_shared_state::<Game>(cx).unwrap();
 
     let mut maybe_connection = use_shared_state::<Connection>(cx).unwrap().write_silent();
-    let board = use_shared_state::<UpdateBoard>(cx).unwrap();
-    let players = use_shared_state::<UpdatePlayers>(cx).unwrap();
-    let host = use_shared_state::<UpdateHost>(cx).unwrap();
-    let info = use_shared_state::<UpdateInfo>(cx).unwrap();
+    let board = use_shared_state::<BoardUpdate>(cx).unwrap();
+    let players = use_shared_state::<PlayerUpdate>(cx).unwrap();
+    let host = use_shared_state::<HostUpdate>(cx).unwrap();
 
     let state = GameSharedState {
         board: board.clone(),
         players: players.clone(),
         host: host.clone(),
-        info: info.clone(),
     };
 
     let mut synced = false;
 
-    let mut client: Arc<Mutex<PollingClient>> = if let Some(connection) = &*maybe_connection {
+    let client: Arc<Mutex<PollingClient>> = if let Some(connection) = &*maybe_connection {
         synced = true;
         connection.clone()
     } else {

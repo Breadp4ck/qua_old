@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use qua_game::scores::Scores;
+use qua_game::prelude::*;
 
 #[derive(Props)]
 pub struct GamePlayerCardProps<'player> {

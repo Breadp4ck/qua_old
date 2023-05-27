@@ -14,8 +14,8 @@ impl GameStateInteraction for QuestionAnswerGameState {
     ) -> Option<GameState> {
         let person = persons.get(author).unwrap();
         match (event, person) {
-            (InputEvent::Timeout, Person::Host(_)) => Some(GameState::Board(
-                BoardGameState::default(),
+            (InputEvent::Timeout, Person::Host(_)) => Some(GameState::Picking(
+                PickingGameState::default(),
             )),
             _ => None,
         }

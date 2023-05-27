@@ -12,7 +12,7 @@ pub mod services;
 
 use components::prelude::*;
 use pages::prelude::*;
-use services::prelude::{Ticket, RoomCode};
+use services::prelude::*;
 use tokio::sync::Mutex;
 use wasm_sockets::PollingClient;
 

@@ -1,13 +1,12 @@
 use std::time::Duration;
 
 use dioxus::prelude::*;
-use qua_game::game::{ClientMessage, Game};
+use qua_game::prelude::*;
 
 use crate::Connection;
 
 pub fn game_answer_button(cx: Scope) -> Element {
-    let game = use_shared_state::<Game>(cx).unwrap();
-    let mut maybe_connection = use_shared_state::<Connection>(cx)
+    let maybe_connection = use_shared_state::<Connection>(cx)
         .unwrap()
         .write_silent();
 
@@ -23,7 +22,7 @@ pub fn game_answer_button(cx: Scope) -> Element {
         cx.spawn({
             async move {
                 if let Some(client) = client {
-                    let mut client = client.lock().await;
+                    let client = client.lock().await;
                     client.send_string(
                         &serde_json::to_string(&ClientMessage::Input(
                             qua_game::game::InputEvent::Answer(Duration::new(1, 0)),

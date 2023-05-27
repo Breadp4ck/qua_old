@@ -1,31 +1,20 @@
 use std::{sync::Arc, time::Duration};
 
-use crate::InnerConnection;
+use qua_game::prelude::*;
 
-use super::prelude::*;
+use crate::*;
 use dioxus::prelude::*;
-use qua_game::{game::{Game, Question, Round}, package::prelude::PackageState};
 use tokio::sync::Mutex;
 use wasm_sockets::PollingClient;
 
-pub enum UpdateBoard {
-    Message(String),
-    Question(Question),
-    Board(Round),
-}
-pub struct UpdatePlayers {}
-pub struct UpdateHost {}
-pub struct UpdateInfo;
-pub struct GameConnectionEstablished(pub bool, pub Option<Arc<Mutex<PollingClient>>>);
 pub struct GameTimer(pub Option<Duration>); // autostart timer
 
 pub fn game_main(cx: Scope) -> Element {
     use_shared_state_provider(cx, || Game::new(PackageState::default()));
     use_shared_state_provider(cx, || None::<InnerConnection>);
-    use_shared_state_provider(cx, || UpdateBoard::Board(Round::Normal(0.into())));
-    use_shared_state_provider(cx, || UpdatePlayers {});
-    use_shared_state_provider(cx, || UpdateHost {});
-    use_shared_state_provider(cx, || UpdateInfo {});
+    use_shared_state_provider(cx, || BoardUpdate::Init);
+    use_shared_state_provider(cx, || PlayerUpdate::Sync);
+    use_shared_state_provider(cx, || HostUpdate::Sync);
     use_shared_state_provider(cx, || GameTimer(None));
 
     cx.render(rsx! {

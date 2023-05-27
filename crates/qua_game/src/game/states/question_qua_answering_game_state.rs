@@ -26,7 +26,27 @@ impl GameStateInteraction for QuestionQuaAnsweringGameState {
                 let scores = package.get(&context.question.unwrap()).cost;
                 if let Person::Player(player) = persons.get_mut(&self.answering).unwrap() {
                     player.add_scores(scores);
+                    context.lead = Some(self.answering.clone());
+
+                    context
+                        .events
+                        .push(GameEvent::Player(PlayerUpdate::ScoresChanges {
+                            name: player.name().clone(),
+                            change: ScoreChange::Add { amount: scores },
+                            new_scores: player.scores(),
+                        }));
+                    context
+                        .events
+                        .push(GameEvent::Player(PlayerUpdate::BecomeLead {
+                            name: player.name().clone(),
+                        }));
                 }
+
+                context
+                    .events
+                    .push(GameEvent::Board(BoardUpdate::AnswerMedia(
+                        context.question.unwrap().clone(),
+                    )));
 
                 Some(GameState::QuestionAnswer(QuestionAnswerGameState::default()))
             }
@@ -34,6 +54,13 @@ impl GameStateInteraction for QuestionQuaAnsweringGameState {
                 let scores = package.get(&context.question.unwrap()).cost;
                 if let Person::Player(player) = persons.get_mut(&self.answering).unwrap() {
                     player.remove_scores(scores);
+                    context
+                        .events
+                        .push(GameEvent::Player(PlayerUpdate::ScoresChanges {
+                            name: player.name().clone(),
+                            change: ScoreChange::Remove { amount: scores },
+                            new_scores: player.scores(),
+                        }));
                 }
 
                 Some(GameState::QuestionQuaWaiting(

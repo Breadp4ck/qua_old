@@ -1,14 +1,12 @@
 use crate::PACKAGE_RESOURCE;
-use crate::contexts::package_resource::{PackageResource, ResourceUrlContent};
+use crate::contexts::package_resource::PackageResource;
 use crate::{services::prelude::*, ROOM_CODE, TICKET};
 use dioxus::prelude::*;
 use dioxus_router::*;
 use fermi::prelude::*;
 use qua_game::person::prelude::*;
 use tokio::sync::Mutex;
-use std::collections::HashMap;
-use std::io::Read;
-use std::{io::Cursor, sync::Arc};
+use std::sync::Arc;
 
 pub fn create(cx: Scope) -> Element {
     let set_ticket = use_set(cx, TICKET);
