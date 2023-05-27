@@ -31,22 +31,20 @@ fn main() {
 }
 
 fn not_found(cx: Scope) -> Element {
-    cx.render(rsx! {
-        Redirect { to: "/" }
-    })
+    cx.render(rsx! { Redirect { to: "/" } })
 }
 
 fn app(cx: Scope) -> Element {
     use_init_atom_root(cx);
 
     cx.render(rsx! (
-        Router {
+        Router { 
             self::nav {}
-            Route { to: "/", self::home {}}
-            Route { to: "/create", self::create {}}
-            Route { to: "/join", self::join {}}
-            Route { to: "/room", self::room {}}
-            Route { to: "", self::not_found {}}
+            Route { to: "/", self::home {} }
+            Route { to: "/create", self::create {} }
+            Route { to: "/join", self::join {} }
+            Route { to: "/room", self::room {} }
+            Route { to: "", self::not_found {} }
         }
     ))
 }

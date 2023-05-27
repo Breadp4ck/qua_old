@@ -9,7 +9,7 @@ use futures::{
 };
 use qua_game::{
     game::{ClientMessage, Game, ServerMessage},
-    package::prelude::Package,
+    package::prelude::PackageState,
     person::{Person, PersonName},
 };
 use tokio::sync::{mpsc::UnboundedSender, Mutex};
@@ -27,7 +27,7 @@ pub struct Room {
 
 impl Room {
     pub fn new(
-        package: Package,
+        package: PackageState,
         code: RoomCode,
         room_service_sender: UnboundedSender<RoomServiceEvent>,
     ) -> Self {
@@ -74,23 +74,27 @@ impl Room {
                                     let mut game = game.lock().await;
                                     game.handle_input(&event, &author);
 
-                                    let mut senders = senders.lock().await;
-                                    Self::broadcast(
-                                        &mut senders,
-                                        &ServerMessage::Input(event, author.clone()),
-                                    )
-                                    .await;
+                                    if game.abandon_events() {
+                                        let mut senders = senders.lock().await;
+                                        Self::broadcast(
+                                            &mut senders,
+                                            &ServerMessage::Input(event, author.clone()),
+                                        )
+                                        .await;
+                                    }
                                 }
                                 ClientMessage::StatelessInput(event) => {
                                     let mut game = game.lock().await;
                                     game.handle_stateless_input(&event, &author);
 
-                                    let mut senders = senders.lock().await;
-                                    Self::broadcast(
-                                        &mut senders,
-                                        &ServerMessage::StatelessInput(event, author.clone()),
-                                    )
-                                    .await;
+                                    if game.abandon_events() {
+                                        let mut senders = senders.lock().await;
+                                        Self::broadcast(
+                                            &mut senders,
+                                            &ServerMessage::StatelessInput(event, author.clone()),
+                                        )
+                                        .await;
+                                    }
                                 }
                                 ClientMessage::SyncRequest => {
                                     let game = game.lock().await;
@@ -109,6 +113,8 @@ impl Room {
                             info!("Person disconnected.");
                             let mut senders = senders.lock().await;
                             senders.remove(&author);
+
+                            Self::broadcast(&mut senders, &ServerMessage::PersonDisconnected(author)).await;
 
                             if senders.len() == 0 {
                                 match room_service_sender

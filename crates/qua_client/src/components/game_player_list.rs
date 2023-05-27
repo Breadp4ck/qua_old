@@ -1,7 +1,6 @@
 use dioxus::prelude::*;
 use qua_game::game::Game;
 use qua_game::person::Personality;
-use qua_game::scores::Scores;
 
 use crate::components::prelude::*;
 
@@ -15,25 +14,10 @@ pub fn game_player_list(cx: Scope) -> Element {
 
     let players_rendered = players.iter().map(|player| {
         let player_name = player.name().to_string();
-        log::info!("Player: {}", player_name);
     });
 
-    log::info!("Player list is rendered with {} players", players.len());
-    log::info!("Game: {}", serde_json::to_string(&*game.clone().read()).unwrap());
-
     cx.render(rsx! {
-        div {
-            class: "player-list",
-            game_player_card {
-                username: "Тестовый игрок 1",
-                scores: Scores::from(250),
-                lead: false
-            },
-            game_player_card {
-                username: "Тестовый игрок 2",
-                scores: Scores::from(32000),
-                lead: true
-            }
+        div { class: "player-list",
             for player in players.iter() {
                 game_player_card {
                     username: "{&player.name().clone().to_string()}",

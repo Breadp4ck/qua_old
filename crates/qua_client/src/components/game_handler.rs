@@ -1,16 +1,15 @@
 use std::sync::Arc;
 
 use dioxus::prelude::*;
-use fermi::{use_read, use_set, Atom, AtomRoot};
+use fermi::use_read;
 use log::*;
 use qua_game::{
-    game::{ClientMessage, Game, GameState, ServerMessage},
-    package::prelude::Package,
+    game::{ClientMessage, Game, GameEvent, ServerMessage},
 };
 use tokio::sync::Mutex;
 use wasm_sockets::{Message, PollingClient};
 
-use crate::{services::prelude::RoomService, TICKET, Connection};
+use crate::{services::prelude::RoomService, Connection, TICKET};
 
 use super::prelude::*;
 
@@ -22,16 +21,28 @@ struct GameSharedState {
     info: UseSharedState<UpdateInfo>,
 }
 
-async fn ws(game: UseSharedState<Game>, state: GameSharedState, mut client: Arc<Mutex<PollingClient>>) {
-    let mut interval = async_timer::Interval::platform_new(core::time::Duration::from_secs(1));
+async fn ws(
+    game: UseSharedState<Game>,
+    state: GameSharedState,
+    mut client: Arc<Mutex<PollingClient>>,
+    synced: bool,
+) {
+    let mut interval = async_timer::Interval::platform_new(core::time::Duration::from_millis(200));
+    if !synced {
+        let wanna_send =
+            serde_json::to_string(&ClientMessage::SyncRequest).expect("Failed to serialize");
 
-    let wanna_send = serde_json::to_string(&ClientMessage::SyncRequest).expect("Failed to serialize");
-
-    interval.wait().await;
-    client.lock().await.send_string(&wanna_send).expect("Failed to send sync request");
-    info!("Event listening started.");
+        // TODO: wait for client starts, timer is cringe
+        interval.wait().await;
+        client
+            .lock()
+            .await
+            .send_string(&wanna_send)
+            .expect("Failed to send sync request");
+    }
 
     loop {
+        // TODO: wait for client starts, timer is cringe
         interval.wait().await;
 
         for message in client.lock().await.receive() {
@@ -45,34 +56,44 @@ async fn ws(game: UseSharedState<Game>, state: GameSharedState, mut client: Arc<
                     match message {
                         ServerMessage::Input(event, author) => {
                             game.write_silent().handle_input(&event, &author);
-
-                            state.board.notify_consumers();
-                        },
+                        }
                         ServerMessage::StatelessInput(event, author) => {
                             game.write_silent().handle_stateless_input(&event, &author);
-
-                            state.board.notify_consumers();
-                        },
+                        }
                         ServerMessage::SyncResponse(synced_game) => {
                             game.write_silent().sync(synced_game);
-
-                            state.board.notify_consumers();
-                            state.players.notify_consumers();
-                            state.host.notify_consumers();
                             info!("The game have been synced.");
                         }
                         ServerMessage::PersonConnected(person) => {
                             game.write_silent().add_person(person.clone());
-
-                            state.players.notify_consumers();
                             info!("{} has joined the game.", person.name().to_string());
-                        },
+                        }
                         ServerMessage::PersonDisconnected(name) => {
                             game.write_silent().remove_person(name.clone());
-
-                            state.players.notify_consumers();
                             info!("{} has disconnected.", name.to_string());
-                        },
+                        }
+                    }
+
+                    while let Some(event) = game.write_silent().event_try_recv() {
+                        match event {
+                            GameEvent::BoardUpdated(board_state) => match board_state {
+                                qua_game::game::BoardState::Text(text) => {
+                                    let mut board = state.board.write();
+                                    *board = UpdateBoard::Message(text);
+                                }
+                                qua_game::game::BoardState::Question(question) => {
+                                    let mut board = state.board.write();
+                                    *board = UpdateBoard::Question(question);
+                                },
+                                qua_game::game::BoardState::View(round) => {
+                                    let mut board = state.board.write();
+                                    *board = UpdateBoard::Board(round);
+                                }
+                            }
+                            GameEvent::PlayersUpdated => state.players.notify_consumers(),
+                            GameEvent::HostUpdated => state.host.notify_consumers(),
+                            GameEvent::InfoMessage(_) => state.info.notify_consumers(),
+                        }
                     }
                 }
                 Message::Binary(_) => {}
@@ -98,7 +119,10 @@ pub fn game_handler(cx: Scope) -> Element {
         info: info.clone(),
     };
 
+    let mut synced = false;
+
     let mut client: Arc<Mutex<PollingClient>> = if let Some(connection) = &*maybe_connection {
+        synced = true;
         connection.clone()
     } else {
         if let Some(ticket) = ticket {
@@ -110,7 +134,7 @@ pub fn game_handler(cx: Scope) -> Element {
         }
     };
 
-    let _: &Coroutine<()> = use_coroutine(cx, |_| ws(game.clone(), state, client));
+    let _: &Coroutine<()> = use_coroutine(cx, |_| ws(game.clone(), state, client, synced));
 
     cx.render(rsx! { div {} })
 }

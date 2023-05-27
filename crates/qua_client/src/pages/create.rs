@@ -42,24 +42,19 @@ pub fn create(cx: Scope) -> Element {
     };
 
     cx.render(rsx! {
-        div {
-            class: "center-screen",
+        div { class: "center-screen",
             if *obtain_room_code.get() {
                 rsx! { Redirect { to: "/room" } }
-            },
+            }
             form {
                 class: "join-game",
                 prevent_default: "onsubmit",
                 onsubmit: move |event| {
                     log::info!("{:?}", event.data);
-                    create_room(
-                        event.data.values["username"][0].clone()
-                ); },
-                div {
-                    class: "join-game-input",
-                    label {
-                        "PACKAGE"
-                    }
+                    create_room(event.data.values["username"][0].clone());
+                },
+                div { class: "join-game-input",
+                    label { "PACKAGE" }
                     input {
                         r#type: "file",
                         accept: ".zip, .qua, .jpg, .png, .txt",
@@ -70,35 +65,22 @@ pub fn create(cx: Scope) -> Element {
                                 if let Some(file_engine) = &evt.files {
                                     let files = file_engine.files();
                                     for file_name in &files {
-                                        if let Some(file) = file_engine.read_file(file_name).await{
+                                        if let Some(file) = file_engine.read_file(file_name).await {
                                             *package.write() = file;
                                             log::info!("Loaded: {:?}", file_name);
                                         }
                                     }
                                 }
                             }
-                        },
+                        }
                     }
                 }
-                div {
-                    class: "join-game-input",
-                    label {
-                        "NAME"
-                    }
-                    input {
-                       "type": "text",
-                        name: "username"
-                    }
+                div { class: "join-game-input",
+                    label { "NAME" }
+                    input { "type": "text", name: "username" }
                 }
-                div {
-                    class: "join-game-input",
-                    input {
-                        "type": "submit",
-                        value: "Create"
-                    }
-                }
+                div { class: "join-game-input", input { "type": "submit", value: "Create" } }
             }
-
         }
     })
 }

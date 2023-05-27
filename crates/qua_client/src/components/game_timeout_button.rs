@@ -5,7 +5,7 @@ use qua_game::game::{ClientMessage, Game};
 
 use crate::Connection;
 
-pub fn game_answer_button(cx: Scope) -> Element {
+pub fn game_timeout_button(cx: Scope) -> Element {
     let game = use_shared_state::<Game>(cx).unwrap();
     let mut maybe_connection = use_shared_state::<Connection>(cx)
         .unwrap()
@@ -19,6 +19,7 @@ pub fn game_answer_button(cx: Scope) -> Element {
 
     let press = move |_| {
         to_owned!(client);
+        log::info!("Send timeout!");
 
         cx.spawn({
             async move {
@@ -26,7 +27,7 @@ pub fn game_answer_button(cx: Scope) -> Element {
                     let mut client = client.lock().await;
                     client.send_string(
                         &serde_json::to_string(&ClientMessage::Input(
-                            qua_game::game::InputEvent::Answer(Duration::new(1, 0)),
+                            qua_game::game::InputEvent::Timeout,
                         ))
                         .unwrap(),
                     );
@@ -36,6 +37,7 @@ pub fn game_answer_button(cx: Scope) -> Element {
     };
 
     cx.render(rsx! {
-        div { class: "game-button", onclick: press, div { class: "text", "qua!" } }
+        div { class: "game-button", onclick: press, div { class: "text", "next" } }
     })
 }
+

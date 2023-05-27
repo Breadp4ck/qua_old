@@ -1,9 +1,15 @@
 use dioxus::prelude::*;
 
-pub fn game_host_card(cx: Scope) -> Element {
+#[derive(Props)]
+pub struct GameHostCardProps<'host> {
+    username: &'host str,
+}
+
+pub fn game_host_card<'host>(cx: Scope<'host, GameHostCardProps<'host>>) -> Element {
     cx.render(rsx! {
-        div {
-            "host_card"
+        div { class: "host-card",
+            div { class: "avatar" }
+            div { class: "info", div { class: "username", "{cx.props.username}" } }
         }
     })
 }

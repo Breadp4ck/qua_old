@@ -1,4 +1,4 @@
-use qua_game::{game::QuestionType, package::prelude::*, scores::Scores};
+use qua_game::{game::Question, package::prelude::*, scores::Scores};
 use qua_package::package_config::{
     AnswerContent, ItemData, PackageConfig, QuestionContent, RoundData, ThemeData,
 };
@@ -30,7 +30,7 @@ pub enum ResourceUrlContent {
 
 pub struct PackageResource {
     config: PackageConfig,
-    urls: HashMap<QuestionType, (ResourceUrlContent, ResourceUrlContent)>,
+    urls: HashMap<Question, (ResourceUrlContent, ResourceUrlContent)>,
 }
 
 impl PackageResource {
@@ -46,7 +46,7 @@ impl PackageResource {
             panic!("Could not find Pack.toml") // TODO: error: Pack.toml not found
         };
 
-        let mut urls: HashMap<QuestionType, (ResourceUrlContent, ResourceUrlContent)> =
+        let mut urls: HashMap<Question, (ResourceUrlContent, ResourceUrlContent)> =
             HashMap::new();
 
         for (round_idx, round) in config.rounds.iter().enumerate() {
@@ -106,10 +106,10 @@ impl PackageResource {
                         AnswerContent::Empty => ResourceUrlContent::Empty,
                     };
 
-                    let index = QuestionType::Normal(
-                        (1 + round_idx).into(),
-                        (1 + theme_idx).into(),
-                        (1 + item_idx).into(),
+                    let index = Question::Normal(
+                        round_idx.into(),
+                        theme_idx.into(),
+                        item_idx.into(),
                     );
                     urls.insert(index, (question_url_content, answer_url_content));
                 }
@@ -166,7 +166,7 @@ impl PackageResource {
 
     fn validate(&mut self) {}
 
-    pub fn get(&self, question: QuestionType) -> PackageResourceItem {
+    pub fn get(&self, question: Question) -> PackageResourceItem {
         let (question_url_content, answer_url_content) = self.urls.get(&question).unwrap(); // TODO: wrap result
         let item_data = self.get_item_data(question).unwrap(); // TODO: wrap result
 
@@ -180,16 +180,16 @@ impl PackageResource {
         }
     }
 
-    fn get_item_data(&self, question: QuestionType) -> Option<ItemData> {
+    fn get_item_data(&self, question: Question) -> Option<ItemData> {
         match question {
-            QuestionType::Normal(round_index, theme_index, question_index) => {
-                let round = &self.config.rounds[round_index.idx() - 1];
-                let theme = &round.themes[theme_index.idx() - 1];
-                let question = &theme.items[question_index.idx() - 1];
+            Question::Normal(round_index, theme_index, question_index) => {
+                let round = &self.config.rounds[round_index.idx()];
+                let theme = &round.themes[theme_index.idx()];
+                let question = &theme.items[question_index.idx()];
 
                 return Some(question.clone());
             }
-            QuestionType::Final(question) => {
+            Question::Final(question) => {
                 todo!()
             }
         }

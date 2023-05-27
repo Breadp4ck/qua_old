@@ -31,10 +31,25 @@ use question_qua_answering_game_state::*;
 use question_qua_queue_game_state::*;
 use question_qua_waiting_game_state::*;
 
-use super::Question;
+use super::{Question, Round};
 use super::game_context::GameContext;
 
 type Persons = HashMap<PersonName, Person>;
+
+#[derive(Clone, Serialize, Deserialize)]
+pub enum GameEvent {
+    BoardUpdated(BoardState),
+    PlayersUpdated,
+    HostUpdated,
+    InfoMessage(String),
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub enum BoardState {
+    Text(String),
+    Question(Question),
+    View(Round),
+}
 
 #[derive(Serialize, Deserialize)]
 pub enum InputEvent {

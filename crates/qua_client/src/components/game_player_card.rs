@@ -10,9 +10,12 @@ pub struct GamePlayerCardProps<'player> {
 
 pub fn game_player_card<'player>(cx: Scope<'player, GamePlayerCardProps<'player>>) -> Element {
     cx.render(rsx! {
-        div {
-            class: "player-card",
-            "{cx.props.username}"
+        div { class: "player-card",
+            div { class: "avatar" }
+            div { class: "info",
+                div { class: "username", "{cx.props.username}" }
+                div { class: "scores", "{cx.props.scores}" }
+            }
         }
     })
 }

@@ -1,11 +1,18 @@
-use std::time::Duration;
-
 use dioxus::prelude::*;
-use qua_game::game::{ClientMessage, Game};
-
+use qua_game::{
+    game::{Game, Question, InputEvent, ClientMessage},
+    scores::Scores,
+};
 use crate::Connection;
 
-pub fn game_answer_button(cx: Scope) -> Element {
+#[derive(PartialEq, Props)]
+pub struct GameBoardQuestionButtonProps {
+    cost: Scores,
+    answered: bool,
+    question: Question,
+}
+
+pub fn game_board_question_button(cx: Scope<GameBoardQuestionButtonProps>) -> Element {
     let game = use_shared_state::<Game>(cx).unwrap();
     let mut maybe_connection = use_shared_state::<Connection>(cx)
         .unwrap()
@@ -17,8 +24,10 @@ pub fn game_answer_button(cx: Scope) -> Element {
         None
     };
 
+    let question = cx.props.question;
+
     let press = move |_| {
-        to_owned!(client);
+        to_owned!(client, question);
 
         cx.spawn({
             async move {
@@ -26,7 +35,7 @@ pub fn game_answer_button(cx: Scope) -> Element {
                     let mut client = client.lock().await;
                     client.send_string(
                         &serde_json::to_string(&ClientMessage::Input(
-                            qua_game::game::InputEvent::Answer(Duration::new(1, 0)),
+                            InputEvent::SelectQuestion(question),
                         ))
                         .unwrap(),
                     );
@@ -35,7 +44,10 @@ pub fn game_answer_button(cx: Scope) -> Element {
         });
     };
 
-    cx.render(rsx! {
-        div { class: "game-button", onclick: press, div { class: "text", "qua!" } }
-    })
+    if !cx.props.answered {
+        cx.render(rsx! { div { onclick: press, class: "question", "{cx.props.cost}" } })
+    } else {
+        cx.render(rsx! { div { class: "question answered", "{cx.props.cost}" } })
+    }
 }
+

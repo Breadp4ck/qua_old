@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use serde::{Deserialize, Serialize};
 
 mod host;
@@ -45,15 +47,15 @@ impl PersonName {
     }
 }
 
-impl ToString for PersonName {
-    fn to_string(&self) -> String {
-        self.data.clone()
-    }
-}
-
 impl Into<String> for PersonName {
     fn into(self) -> String {
         self.data
+    }
+}
+
+impl Display for PersonName {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.data)
     }
 }
 

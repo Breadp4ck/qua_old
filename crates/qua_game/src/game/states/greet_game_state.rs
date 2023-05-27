@@ -6,7 +6,7 @@ pub struct GreetGameState;
 impl GameStateInteraction for GreetGameState {
     fn handle_event(
         &mut self,
-        _: &mut GameContext,
+        context: &mut GameContext,
         event: &InputEvent,
         author: &PersonName,
         persons: &mut Persons,
@@ -15,6 +15,12 @@ impl GameStateInteraction for GreetGameState {
         let person = persons.get(author).unwrap();
         match (event, person) {
             (InputEvent::Timeout, Person::Host(_)) => {
+                context
+                    .events
+                    .push(GameEvent::BoardUpdated(BoardState::View(
+                        context.round.clone(),
+                    )));
+
                 Some(GameState::Overview(OverviewGameState::default()))
             }
             _ => None,

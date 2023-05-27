@@ -30,6 +30,11 @@ impl GameStateInteraction for BoardGameState {
                             if *player.name() == leader_name
                                 && round_index.clone() == current_round_index
                             {
+                                context
+                                    .events
+                                    .push(GameEvent::BoardUpdated(BoardState::Question(
+                                        question.clone(),
+                                    )));
                                 context.question = Some(question.clone());
                                 return Some(GameState::QuestionAppearance(
                                     QuestionAppearanceGameState::default(),

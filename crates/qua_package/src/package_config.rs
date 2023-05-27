@@ -76,18 +76,18 @@ pub enum AnswerContent {
     Empty, // TODO: Remove
 }
 
-impl Into<Package> for PackageConfig {
-    fn into(self) -> Package {
-        let mut game_package = Package::default();
+impl Into<PackageState> for PackageConfig {
+    fn into(self) -> PackageState {
+        let mut game_package = PackageState::default();
 
         for round in &self.rounds {
-            let mut game_round = Round { themes: vec![] };
+            let mut game_round = RoundState { themes: vec![] };
 
             for theme in &round.themes {
-                let mut game_theme = Theme { questions: vec![] };
+                let mut game_theme = ThemeState { questions: vec![] };
 
                 for item in &theme.items {
-                    let game_question = Question {
+                    let game_question = QuestionState {
                         answered: false,
                         cost: item.cost.into(),
                         answered_by: None,
