@@ -8,6 +8,7 @@ mod game_host;
 mod game_host_card;
 mod game_info;
 mod game_main;
+mod game_media_content;
 mod game_player_card;
 mod game_player_list;
 mod game_timeout_button;
@@ -28,6 +29,7 @@ pub(crate) mod prelude {
     pub use super::game_host_card::*;
     pub use super::game_info::*;
     pub use super::game_main::*;
+    pub use super::game_media_content::*;
     pub use super::game_player_card::*;
     pub use super::game_player_list::*;
     pub use super::game_timeout_button::*;

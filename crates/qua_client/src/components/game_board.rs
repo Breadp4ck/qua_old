@@ -1,6 +1,8 @@
 use dioxus::prelude::*;
+use fermi::use_read;
 use qua_game::prelude::*;
 
+use crate::*;
 use super::prelude::*;
 
 pub fn game_board(cx: Scope) -> Element {
@@ -8,16 +10,39 @@ pub fn game_board(cx: Scope) -> Element {
     let board = use_shared_state::<BoardUpdate>(cx).unwrap().read();
 
     let board = match &*board {
-        BoardUpdate::Init => rsx! { div { class: "round", "ДАБРО ПАЖАЛОВАТЬ!!!" } },
-        BoardUpdate::Text(text) => rsx! { div { "{text}" } },
-        BoardUpdate::QuestionType(question) => rsx! { div { "ВОПРОСЕЦ" } },
-        BoardUpdate::QuestionMatter(_) => rsx! { div {} },
-        BoardUpdate::QuestionMedia(_) => rsx! { div {} },
-        BoardUpdate::AnswerMedia(_) => rsx! { div {} },
+        BoardUpdate::Init => rsx! { div { class: "message", "ДАБРО ПАЖАЛОВАТЬ!!!" } },
+        BoardUpdate::Text(text) => rsx! { div { class: "message", "{text}" } },
+        BoardUpdate::QuestionType(question) => rsx! { div { class: "message", "ВОПРОСЕЦ" } },
+        BoardUpdate::QuestionMatter(question) => {
+            let question_idx = match question {
+                Question::Final(_) => todo!(),
+                Question::Normal(_, _, _) => {
+
+                },
+            };
+
+            rsx! { div { class: "message", "ТЕМА ВОПРОСА" } }
+        }
+        BoardUpdate::QuestionMedia(question) => {
+            rsx! {
+                game_media_content {
+                    question: question.clone(),
+                    media_source: MediaSource::Question
+                }
+            }
+        }
+        BoardUpdate::AnswerMedia(question) => {
+            rsx! {
+                game_media_content {
+                    question: question.clone(),
+                    media_source: MediaSource::Answer
+                }
+            }
+        }
         BoardUpdate::Picking(round) => {
             let round_idx = match round {
-                qua_game::game::Round::Normal(round) => round,
-                qua_game::game::Round::Final => todo!(),
+                Round::Normal(round) => round,
+                Round::Final => todo!(),
             };
 
             let rounds = &game.package().rounds;
