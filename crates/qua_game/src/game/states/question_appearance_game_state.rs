@@ -20,6 +20,7 @@ impl GameStateInteraction for QuestionAppearanceGameState {
                     .push(GameEvent::Board(BoardUpdate::QuestionMatter(
                         context.question.unwrap().clone(),
                     )));
+
                 Some(GameState::QuestionMatter(QuestionMatterGameState::default()))
             }
             _ => None,

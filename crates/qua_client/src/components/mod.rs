@@ -1,6 +1,9 @@
 mod game_answer_button;
+mod game_begin_button;
 mod game_board;
 mod game_board_question_button;
+mod game_board_theme;
+mod game_button;
 mod game_count_correct_button;
 mod game_count_wrong_button;
 mod game_handler;
@@ -11,6 +14,8 @@ mod game_main;
 mod game_media_content;
 mod game_player_card;
 mod game_player_list;
+mod game_progress_bar;
+mod game_question_matter;
 mod game_timeout_button;
 mod game_timer;
 mod menu_card;
@@ -20,8 +25,11 @@ pub(crate) mod prelude {
     pub use super::*;
 
     pub use super::game_answer_button::*;
+    pub use super::game_begin_button::*;
     pub use super::game_board::*;
     pub use super::game_board_question_button::*;
+    pub use super::game_board_theme::*;
+    pub use super::game_button::*;
     pub use super::game_count_correct_button::*;
     pub use super::game_count_wrong_button::*;
     pub use super::game_handler::*;
@@ -32,6 +40,8 @@ pub(crate) mod prelude {
     pub use super::game_media_content::*;
     pub use super::game_player_card::*;
     pub use super::game_player_list::*;
+    pub use super::game_progress_bar::*;
+    pub use super::game_question_matter::*;
     pub use super::game_timeout_button::*;
     pub use super::game_timer::*;
     pub use super::menu_card::*;

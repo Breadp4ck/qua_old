@@ -14,7 +14,7 @@ impl GameStateInteraction for InitGameState {
     ) -> Option<GameState> {
         let person = persons.get(author).unwrap();
         match (event, person) {
-            (InputEvent::Timeout, Person::Host(_)) => {
+            (InputEvent::Begin, Person::Host(_)) => {
                 context
                     .events
                     .push(GameEvent::Board(BoardUpdate::Text("ВСЕМ ПРИВЕТ".into())));

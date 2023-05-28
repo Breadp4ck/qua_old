@@ -15,9 +15,9 @@ impl GameStateInteraction for GreetGameState {
         let person = persons.get(author).unwrap();
         match (event, person) {
             (InputEvent::Timeout, Person::Host(_)) => {
-                context.events.push(GameEvent::Board(BoardUpdate::Text(
-                    "ОБЗОР ИГРЫ".into(),
-                )));
+                context
+                    .events
+                    .push(GameEvent::Board(BoardUpdate::Text("ОБЗОР ИГРЫ".into())));
 
                 Some(GameState::Overview(OverviewGameState::default()))
             }

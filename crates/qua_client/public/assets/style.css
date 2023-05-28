@@ -13,10 +13,10 @@
 * acnt: #8287ab 233 24.0 67.1
 * */
     --main-hue: 180;
-    --accent-1-hue: 0;
-    --accent-2-hue: 60;
-    --accent-3-hue: 120;
-    --accent-4-hue: 180;
+    --accent-red-hue: 0;
+    --accent-yellow-hue: 60;
+    --accent-green-hue: 120;
+    --accent-blue-hue: 180;
 
     --main-font-name: "Helvetica";
     --accent-font-name: "Xolonium";
@@ -31,15 +31,15 @@
     --fg-color: var(--dark-color);
     --bg-color: var(--light-color);
 
-    --accent-1: hsl(var(--accent-1-hue), 55%, 70%);
-    --accent-2: hsl(var(--accent-2-hue), 55%, 70%);
-    --accent-3: hsl(var(--accent-3-hue), 55%, 70%);
-    --accent-4: hsl(var(--accent-4-hue), 55%, 70%);
+    --accent-red: hsl(var(--accent-red-hue), 55%, 70%);
+    --accent-yellow: hsl(var(--accent-yellow-hue), 55%, 70%);
+    --accent-green: hsl(var(--accent-green-hue), 55%, 70%);
+    --accent-blue: hsl(var(--accent-blue-hue), 55%, 70%);
 
-    --accent-1-dark: hsl(var(--accent-1-hue), 55%, 40%);
-    --accent-2-dark: hsl(var(--accent-2-hue), 55%, 40%);
-    --accent-3-dark: hsl(var(--accent-3-hue), 55%, 40%);
-    --accent-4-dark: hsl(var(--accent-4-hue), 55%, 40%);
+    --accent-red-dark: hsl(var(--accent-red-hue), 55%, 40%);
+    --accent-yellow-dark: hsl(var(--accent-yellow-hue), 55%, 40%);
+    --accent-green-dark: hsl(var(--accent-green-hue), 55%, 40%);
+    --accent-blue-dark: hsl(var(--accent-blue-hue), 55%, 40%);
 
     --body-bg: hsl(var(--main-hue), 10%, 10%);
 
@@ -53,17 +53,17 @@
     --half-border-radius: 10px;
 }
 
-.accent-bg-1 {
-    background-color: var(--accent-1);
+.accent-bg-red {
+    background-color: var(--accent-red);
 }
-.accent-bg-2 {
-    background-color: var(--accent-2);
+.accent-bg-yellow {
+    background-color: var(--accent-yellow);
 }
-.accent-bg-3 {
-    background-color: var(--accent-3);
+.accent-bg-green {
+    background-color: var(--accent-green);
 }
-.accent-bg-4 {
-    background-color: var(--accent-4);
+.accent-bg-blue {
+    background-color: var(--accent-blue);
 }
 
 @font-face {
@@ -175,7 +175,7 @@ nav .impressive:hover {
     font-size: 8em;
 
     color: var(--fg-color);
-    /* background-color: var(--accent-1); */
+    /* background-color: var(--accent-red); */
 }
 
 .menu-card-icon {
@@ -288,7 +288,7 @@ form.join-game {
     height: 80px;
 
     border: 1px solid var(--dark-color);
-    background-color: var(--accent-2);
+    background-color: var(--accent-yellow);
     border-radius: var(--default-border-radius);
 }
 
@@ -360,7 +360,7 @@ form.join-game {
     width: 25%;
 
     font-size: 2em;
-    color: var(--accent-2);
+    color: var(--accent-yellow);
 
     border-bottom: 1px solid var(--light-color);
 }
@@ -375,7 +375,7 @@ form.join-game {
     border-radius: var(--default-border-radius);
     font-family: var(--accent-font-name);
     color: var(--dark-color);
-    background-color: var(--accent-2);
+    background-color: var(--accent-yellow);
     border: 1px solid var(--dark-color);
 
     cursor: pointer;
@@ -387,22 +387,77 @@ form.join-game {
 }
 .game-board .board .round .question:active {
     transform: scale(0.95);
-    box-shadow: 0 0 10px 10px var(--accent-4);
+    box-shadow: 0 0 10px 10px var(--accent-blue);
 }
 .game-board .board .round .answered {
     visibility: hidden;
 }
 
+.game-board .board .message {
+    padding: 5px;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+
+    color: var(--accent-yellow);
+    font-size: 4em;
+    text-shadow: 
+        3px 3px var(--dark-color),
+        1px -1px var(--dark-color),
+        -1px 1px var(--dark-color),
+        -1px -1px var(--dark-color);
+}
+
+.game-board .board .media-content {
+    padding: 5px;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.game-board .board .media-content * {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
 
 .game-board .timer {
     height: 4vh;
+    overflow: hidden;
 
-    background-color: #f57f7f;
-    background: repeating-linear-gradient( 45deg, #cd5163, #cd5163 20px, #f57f7f 20px, #f57f7f 40px );
-
+    background-color: var(--dark-color);
     border-bottom-right-radius: var(--default-border-radius);
     border-bottom-left-radius: var(--default-border-radius);
 }
+.game-board .timer span {
+    display: block;
+    height: 100%;
+}
+.game-board .timer span .progress {
+    background-color: #f57f7f;
+    background: repeating-linear-gradient( 45deg, #cd5163, #cd5163 20px, #f57f7f 20px, #f57f7f 40px );
+
+    animation-name: progress_animation;
+    animation-timing-function: linear;
+    animation-fill-mode: both; 
+}
+.game-board .timer span .progress-wait {
+    background-color: #f57f7f;
+    background: repeating-linear-gradient( 45deg, #cd5163, #cd5163 20px, #f57f7f 20px, #f57f7f 40px );
+    width: 100%;
+}
+
+@keyframes progress_animation {
+    0% { width: 100%; }
+    100% { width: 0; }
+}
+
 
 /* SIDE CONTAINER */
 
@@ -443,7 +498,7 @@ form.join-game {
     height: 80px;
 
     border: 1px solid var(--dark-color);
-    background-color: var(--accent-2);
+    background-color: var(--accent-yellow);
     border-radius: var(--default-border-radius);
 }
 
@@ -503,16 +558,21 @@ form.join-game {
 /* BUTTON */
 
 .game-button {
-    margin: 2em 4em;
-    height: 6em;
+    margin: 0.5em 1em;
+    height: 2em;
 
     transition-duration: 0.05s;
-    background-color: var(--accent-2);
     cursor: pointer;
 
+    display: flex;
     border-radius: var(--default-border-radius);
     box-shadow: 8px 8px var(--dark-color);
     align-items: center;
+    justify-content: center;
+
+    color: var(--dark-color);
+    font-size: 3em;
+    font-family: var(--accent-font-name);
 }
 
 .game-button:hover {
@@ -523,17 +583,6 @@ form.join-game {
 .game-button:active {
     box-shadow: 4px 4px var(--dark-color);
     transform: translate(4px, 4px);
-}
-
-.game-button .text {
-    color: var(--dark-color);
-    font-size: 3em;
-    font-family: var(--accent-font-name);
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
 }
 
 /* MODIFIERS */

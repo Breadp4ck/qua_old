@@ -8,6 +8,7 @@ pub enum GameEvent {
     Board(BoardUpdate),
     Player(PlayerUpdate),
     Host(HostUpdate),
+    State(StateUpdate),
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -52,4 +53,19 @@ pub enum HostUpdate {
     Connected { name: PersonName },
     Disconnected,
     Sync,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub enum StateUpdate {
+    Init,
+    Greet,
+    Overview,
+    Picking,
+    QuestionAppearance,
+    QuestionMatter,
+    QuestionAsking,
+    QuaWaiting,
+    QuaQueue,
+    QuaAnswer,
+    QuestionAnswer,
 }

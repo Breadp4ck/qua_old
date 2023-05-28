@@ -1,22 +1,28 @@
-use crate::PACKAGE_RESOURCE;
-use crate::contexts::package_resource::PackageResource;
-use crate::{services::prelude::*, ROOM_CODE, TICKET};
+use crate::*;
 use dioxus::prelude::*;
 use dioxus_router::*;
 use fermi::prelude::*;
 use qua_game::person::prelude::*;
-use tokio::sync::Mutex;
 use std::sync::Arc;
+use tokio::sync::Mutex;
 
 pub fn create(cx: Scope) -> Element {
     let set_ticket = use_set(cx, TICKET);
+    let set_person_type = use_set(cx, PERSON_TYPE);
     let set_room_code = use_set(cx, ROOM_CODE);
     let set_package_resource = use_set(cx, PACKAGE_RESOURCE);
     let obtain_room_code = use_state(cx, || false);
     let package: &UseRef<Vec<u8>> = use_ref(cx, Vec::new);
 
     let create_room = move |username: String| {
-        to_owned!(package, set_ticket, set_room_code, set_package_resource, obtain_room_code);
+        to_owned!(
+            package,
+            set_ticket,
+            set_person_type,
+            set_room_code,
+            set_package_resource,
+            obtain_room_code
+        );
 
         cx.spawn({
             async move {
@@ -31,6 +37,7 @@ pub fn create(cx: Scope) -> Element {
                 .await;
 
                 set_ticket(Some(ticket));
+                set_person_type(PersonType::Host);
                 set_room_code(Some(room_code));
                 set_package_resource(Some(Arc::new(Mutex::new(package_resource))));
 

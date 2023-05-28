@@ -1,4 +1,4 @@
-use qua_game::{game::Question, scores::Scores};
+use qua_game::{game::Question, prelude::Theme, scores::Scores};
 use qua_package::package_config::{AnswerContent, ItemData, PackageConfig, QuestionContent};
 use std::{
     collections::HashMap,
@@ -10,11 +10,12 @@ use zip::read::ZipFile;
 
 pub struct PackageResourceItem {
     pub title: String,
+    pub answer: String,
     pub cost: Scores,
     pub question_url_content: ResourceUrlContent,
-    pub question_description: String,
+    pub question_description: Option<String>,
     pub answer_url_content: ResourceUrlContent,
-    pub answer_description: String,
+    pub answer_description: Option<String>,
 }
 
 #[derive(Clone)]
@@ -133,10 +134,10 @@ impl PackageResource {
                 properties.type_("video/mp4");
             }
             "png" => {
-                properties.type_("video/png");
+                properties.type_("image/png");
             }
             "jpg" | "jpeg" => {
-                properties.type_("video/jpeg");
+                properties.type_("image/jpeg");
             }
             "txt" => {
                 properties.type_("text/plain");
@@ -158,12 +159,21 @@ impl PackageResource {
         Url::create_object_url_with_blob(&blob).unwrap()
     }
 
+    pub fn get_theme(&self, theme: Theme) -> String {
+        match theme {
+            Theme::Normal(round_idx, theme_idx) => {
+                self.config.rounds[round_idx.idx()].themes[theme_idx.idx()].name.clone()
+            }
+        }
+    }
+
     pub fn get(&self, question: Question) -> PackageResourceItem {
         let (question_url_content, answer_url_content) = self.urls.get(&question).unwrap(); // TODO: wrap result
         let item_data = self.get_item_data(question).unwrap(); // TODO: wrap result
 
         PackageResourceItem {
             title: item_data.title,
+            answer: item_data.answer,
             cost: item_data.cost.into(),
             question_url_content: question_url_content.clone(),
             question_description: item_data.question_description,

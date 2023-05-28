@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::Duration};
+use std::{rc::Rc, sync::Arc, time::Duration};
 
 use async_timer::Interval;
 use dioxus::prelude::*;
@@ -10,11 +10,14 @@ use wasm_sockets::{Message, PollingClient};
 
 use crate::*;
 
+type GameTimer = Rc<dyn Fn(Option<Duration>)>;
+
 #[derive(Clone)]
 struct GameSharedState {
     board: UseSharedState<BoardUpdate>,
     players: UseSharedState<PlayerUpdate>,
     host: UseSharedState<HostUpdate>,
+    state: UseSharedState<StateUpdate>,
 }
 
 async fn ws(
@@ -22,6 +25,7 @@ async fn ws(
     state: GameSharedState,
     client: Arc<Mutex<PollingClient>>,
     synced: bool,
+    timer: UseSharedState<Option<Duration>>,
 ) {
     let mut interval = Interval::platform_new(Duration::from_millis(200));
     if !synced {
@@ -84,6 +88,25 @@ async fn ws(
                                 let mut host = state.host.write();
                                 *host = update;
                             }
+                            GameEvent::State(update) => {
+                                let mut time = timer.write();
+                                *time = match update {
+                                    StateUpdate::Init => None,
+                                    StateUpdate::Greet => Some(Duration::from_secs(2)),
+                                    StateUpdate::Overview => Some(Duration::from_secs(2)),
+                                    StateUpdate::Picking => None,
+                                    StateUpdate::QuestionAppearance => Some(Duration::from_secs(1)),
+                                    StateUpdate::QuestionMatter => Some(Duration::from_secs(2)),
+                                    StateUpdate::QuestionAsking => Some(Duration::from_secs(1)),
+                                    StateUpdate::QuaWaiting => Some(Duration::from_secs(10)),
+                                    StateUpdate::QuaQueue => Some(Duration::from_secs(1)),
+                                    StateUpdate::QuaAnswer => Some(Duration::from_secs(10)),
+                                    StateUpdate::QuestionAnswer => Some(Duration::from_secs(2)),
+                                };
+
+                                let mut state = state.state.write();
+                                *state = update;
+                            }
                         }
                     }
                 }
@@ -96,16 +119,19 @@ async fn ws(
 pub fn game_handler(cx: Scope) -> Element {
     let ticket = use_read(cx, TICKET);
     let game = use_shared_state::<Game>(cx).unwrap();
+    let timer = use_shared_state::<Option<Duration>>(cx).unwrap();
 
     let mut maybe_connection = use_shared_state::<Connection>(cx).unwrap().write_silent();
     let board = use_shared_state::<BoardUpdate>(cx).unwrap();
     let players = use_shared_state::<PlayerUpdate>(cx).unwrap();
     let host = use_shared_state::<HostUpdate>(cx).unwrap();
+    let state = use_shared_state::<StateUpdate>(cx).unwrap();
 
     let state = GameSharedState {
         board: board.clone(),
         players: players.clone(),
         host: host.clone(),
+        state: state.clone(),
     };
 
     let mut synced = false;
@@ -123,7 +149,10 @@ pub fn game_handler(cx: Scope) -> Element {
         }
     };
 
-    let _: &Coroutine<()> = use_coroutine(cx, |_| ws(game.clone(), state, client, synced));
+    let _: &Coroutine<()> = use_coroutine(cx, |_| {
+        to_owned!(timer);
+        ws(game.clone(), state, client, synced, timer)
+    });
 
     cx.render(rsx! { div {} })
 }

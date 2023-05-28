@@ -10,7 +10,7 @@ impl GameStateInteraction for PickingGameState {
         event: &InputEvent,
         author: &PersonName,
         persons: &mut Persons,
-        _: &mut PackageState,
+        package: &mut PackageState,
     ) -> Option<GameState> {
         let person = persons.get(author).unwrap();
         match (event, person) {
@@ -28,6 +28,9 @@ impl GameStateInteraction for PickingGameState {
                             if *player.name() == leader_name
                                 && round_index.clone() == current_round_index
                             {
+                                package.mark_answered(&question);
+                                context.question = None;
+
                                 context
                                     .events
                                     .push(GameEvent::Board(BoardUpdate::QuestionType(
@@ -53,6 +56,9 @@ impl GameStateInteraction for PickingGameState {
                     (Question::Final(_), Round::Final) => todo!(),
                     (Question::Normal(round_index, _, _), Round::Normal(current_round_index)) => {
                         if round_index.clone() == current_round_index {
+                            package.mark_answered(&question);
+                            context.question = None;
+
                             context
                                 .events
                                 .push(GameEvent::Board(BoardUpdate::QuestionType(

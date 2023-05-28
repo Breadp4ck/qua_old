@@ -27,48 +27,35 @@ pub fn game_media_content(cx: Scope<GameMediaContentProps>) -> Element {
     let resource_load = use_future(cx, (), |_| {
         to_owned!(question, package, resource_item);
 
-            async move {
-                let package = package.unwrap().clone();
-                let package = package.lock().await;
+        async move {
+            let package = package.unwrap().clone();
+            let package = package.lock().await;
 
-                let item = package.get(question);
-                resource_item.set(Some(item));
-                log::info!("Контент запихан!");
-                // pub title: String,
-                // pub cost: Scores,
-                // pub question_url_content: ResourceUrlContent,
-                // pub question_description: String,
-                // pub answer_url_content: ResourceUrlContent,
-                // pub answer_description: String,
-            }
+            let item = package.get(question);
+            resource_item.set(Some(item));
+        }
     });
 
     if let Some(item) = &*resource_item.read() {
-        let url = match cx.props.media_source {
-            MediaSource::Answer => item.answer_url_content.clone(),
-            MediaSource::Question => item.question_url_content.clone(),
+        let (general, url) = match cx.props.media_source {
+            MediaSource::Answer => (item.answer.clone(), item.answer_url_content.clone()),
+            MediaSource::Question => (item.answer.clone(), item.question_url_content.clone()),
         };
 
         match url {
             ResourceUrlContent::Text { url } => cx.render(rsx! { div { "{url}" } }),
             ResourceUrlContent::Picture { url } => cx.render(rsx! {
-                div {
-                    video { src: "{url}" },
-                }
+                div { class: "media-content", img { src: "{url}" } }
             }),
             ResourceUrlContent::Video { url } => cx.render(rsx! {
-                div {
-                    video { src: "{url}", autoplay: "true" },
-                }
+                div { class: "media-content", video { src: "{url}", autoplay: "true" } }
             }),
             ResourceUrlContent::Sound { url } => cx.render(rsx! {
-                div {
-                    audio { src: "{url}", autoplay: "true" },
-                }
+                div { audio { src: "{url}", autoplay: "true" } }
             }),
-            ResourceUrlContent::Empty => cx.render(rsx! { div { "ПУСТО" } }),
+            ResourceUrlContent::Empty => cx.render(rsx! { div { class: "message", "{general}" } }),
         }
     } else {
-        cx.render(rsx! { div { "ЖДЁМ МЕДИ КОНТЕНТ" } })
+        cx.render(rsx! { div { "..." } })
     }
 }

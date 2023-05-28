@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use contexts::package_resource::PackageResource;
 use dioxus::prelude::*;
@@ -16,7 +16,15 @@ use services::prelude::*;
 use tokio::sync::Mutex;
 use wasm_sockets::PollingClient;
 
+enum PersonType {
+    Lead,
+    Player,
+    Host,
+}
+
 static TICKET: Atom<Option<Ticket>> = |_| None;
+static TIMER: Atom<Option<Duration>> = |_| None;
+static PERSON_TYPE: Atom<PersonType> = |_| PersonType::Player;
 static ROOM_CODE: Atom<Option<RoomCode>> = |_| None;
 static PACKAGE_RESOURCE: Atom<Option<Arc<Mutex<PackageResource>>>> = |_| None;
 

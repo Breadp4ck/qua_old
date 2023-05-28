@@ -6,7 +6,7 @@ pub struct QuestionAnswerGameState;
 impl GameStateInteraction for QuestionAnswerGameState {
     fn handle_event(
         &mut self,
-        _: &mut GameContext,
+        context: &mut GameContext,
         event: &InputEvent,
         author: &PersonName,
         persons: &mut Persons,
@@ -14,9 +14,13 @@ impl GameStateInteraction for QuestionAnswerGameState {
     ) -> Option<GameState> {
         let person = persons.get(author).unwrap();
         match (event, person) {
-            (InputEvent::Timeout, Person::Host(_)) => Some(GameState::Picking(
-                PickingGameState::default(),
-            )),
+            (InputEvent::Timeout, Person::Host(_)) => {
+                context.events.push(GameEvent::Board(BoardUpdate::Picking(
+                    context.round.clone(),
+                )));
+
+                Some(GameState::Picking(PickingGameState::default()))
+            }
             _ => None,
         }
     }

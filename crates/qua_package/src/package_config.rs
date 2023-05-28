@@ -33,9 +33,9 @@ pub struct ItemData {
     pub title: String,
     pub answer: String,
     pub question_content: QuestionContent,
-    pub question_description: String,
+    pub question_description: Option<String>,
     pub answer_content: AnswerContent,
-    pub answer_description: String,
+    pub answer_description: Option<String>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]

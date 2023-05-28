@@ -8,7 +8,7 @@ pub fn home(cx: Scope) -> Element {
                 to: "/create",
                 header: "CREAETE",
                 description: "Create new room",
-                color_accent_class: "accent-bg-1",
+                color_accent_class: "accent-bg-red",
                 icon_src: "assets/icons/play-circle-outline.svg",
                 icon_alt: "1"
             }
@@ -16,7 +16,7 @@ pub fn home(cx: Scope) -> Element {
                 to: "/join",
                 header: "JOIN",
                 description: "Join to room",
-                color_accent_class: "accent-bg-2",
+                color_accent_class: "accent-bg-yellow",
                 icon_src: "assets/icons/person-add-outline.svg",
                 icon_alt: "2"
             }
@@ -24,7 +24,7 @@ pub fn home(cx: Scope) -> Element {
                 to: "/package",
                 header: "PACKAGE",
                 description: "Create new package",
-                color_accent_class: "accent-bg-3",
+                color_accent_class: "accent-bg-green",
                 icon_src: "assets/icons/briefcase-outline.svg",
                 icon_alt: "3"
             }

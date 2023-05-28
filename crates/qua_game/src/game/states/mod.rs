@@ -56,6 +56,22 @@ pub enum GameState {
 }
 
 impl GameState {
+    pub fn proceed_translation_event(&mut self, context: &mut GameContext) {
+        match self {
+            GameState::Init(_) => context.events.push(GameEvent::State(StateUpdate::Init)),
+            GameState::Greet(_) => context.events.push(GameEvent::State(StateUpdate::Greet)),
+            GameState::Overview(_) => context.events.push(GameEvent::State(StateUpdate::Overview)),
+            GameState::Picking(_) => context.events.push(GameEvent::State(StateUpdate::Picking)),
+            GameState::QuestionAppearance(_) => context.events.push(GameEvent::State(StateUpdate::QuestionAppearance)),
+            GameState::QuestionMatter(_) => context.events.push(GameEvent::State(StateUpdate::QuestionMatter)),
+            GameState::QuestionAsking(_) => context.events.push(GameEvent::State(StateUpdate::QuestionAsking)),
+            GameState::QuestionQuaWaiting(_) => context.events.push(GameEvent::State(StateUpdate::QuaWaiting)),
+            GameState::QuestionQuaQueue(_) => context.events.push(GameEvent::State(StateUpdate::QuaQueue)),
+            GameState::QuestionQuaAnswering(_) => context.events.push(GameEvent::State(StateUpdate::QuaAnswer)),
+            GameState::QuestionAnswer(_) => context.events.push(GameEvent::State(StateUpdate::QuestionAnswer)),
+        }
+    }
+
     pub fn handle_input(
         &mut self,
         context: &mut GameContext,
@@ -70,7 +86,9 @@ impl GameState {
             GameState::Overview(state) => {
                 state.handle_event(context, event, author, persons, package)
             }
-            GameState::Picking(state) => state.handle_event(context, event, author, persons, package),
+            GameState::Picking(state) => {
+                state.handle_event(context, event, author, persons, package)
+            }
             GameState::QuestionAppearance(state) => {
                 state.handle_event(context, event, author, persons, package)
             }

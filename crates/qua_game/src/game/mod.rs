@@ -16,10 +16,15 @@ pub use game_events::*;
 pub use game_inputs::*;
 pub use states::*;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub enum Round {
     Normal(RoundIndex),
     Final,
+}
+
+#[derive(PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]
+pub enum Theme {
+    Normal(RoundIndex, ThemeIndex),
 }
 
 #[derive(Hash, PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]
@@ -160,6 +165,7 @@ impl Game {
             &mut self.package,
         ) {
             self.state = state;
+            self.state.proceed_translation_event(&mut self.context);
         }
     }
 
@@ -168,12 +174,12 @@ impl Game {
         match (event, person) {
             (StatelessInputEvent::AssignLeadPlayer(name), Person::Host(_)) => {
                 self.context.lead = Some(name.clone());
-                    self.context
-                        .events
-                        .push(GameEvent::Player(PlayerUpdate::BecomeLead {
-                            name: name.clone(),
-                        }));
-            },
+                self.context
+                    .events
+                    .push(GameEvent::Player(PlayerUpdate::BecomeLead {
+                        name: name.clone(),
+                    }));
+            }
             (StatelessInputEvent::GivePlayerScores(name, scores), Person::Host(_)) => {
                 if let Person::Player(player) = self.persons.get_mut(name).unwrap() {
                     player.add_scores(scores.clone());
@@ -185,7 +191,7 @@ impl Game {
                             new_scores: player.scores(),
                         }));
                 }
-            },
+            }
             (StatelessInputEvent::TakePlayerScores(name, scores), Person::Host(_)) => {
                 if let Person::Player(player) = self.persons.get_mut(name).unwrap() {
                     player.remove_scores(scores.clone());
@@ -197,7 +203,7 @@ impl Game {
                             new_scores: player.scores(),
                         }));
                 }
-            },
+            }
             (StatelessInputEvent::SetPlayerScores(name, scores), Person::Host(_)) => {
                 if let Person::Player(player) = self.persons.get_mut(name).unwrap() {
                     player.set_scores(scores.clone());
@@ -209,7 +215,7 @@ impl Game {
                             new_scores: player.scores(),
                         }));
                 }
-            },
+            }
             _ => (),
         }
     }

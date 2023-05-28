@@ -2,42 +2,26 @@ use dioxus::prelude::*;
 use fermi::use_read;
 use qua_game::prelude::*;
 
-use crate::*;
 use super::prelude::*;
+use crate::*;
 
 pub fn game_board(cx: Scope) -> Element {
     let game = use_shared_state::<Game>(cx).unwrap().read().clone();
     let board = use_shared_state::<BoardUpdate>(cx).unwrap().read();
+    let package = use_read(cx, PACKAGE_RESOURCE);
 
     let board = match &*board {
-        BoardUpdate::Init => rsx! { div { class: "message", "ДАБРО ПАЖАЛОВАТЬ!!!" } },
+        BoardUpdate::Init => rsx! { div { class: "message", "Синхронизировано" } },
         BoardUpdate::Text(text) => rsx! { div { class: "message", "{text}" } },
-        BoardUpdate::QuestionType(question) => rsx! { div { class: "message", "ВОПРОСЕЦ" } },
+        BoardUpdate::QuestionType(question) => rsx! { div { class: "message", "Внимание, вопрос!" } },
         BoardUpdate::QuestionMatter(question) => {
-            let question_idx = match question {
-                Question::Final(_) => todo!(),
-                Question::Normal(_, _, _) => {
-
-                },
-            };
-
-            rsx! { div { class: "message", "ТЕМА ВОПРОСА" } }
+            rsx! { game_question_matter { question: question.clone() } }
         }
         BoardUpdate::QuestionMedia(question) => {
-            rsx! {
-                game_media_content {
-                    question: question.clone(),
-                    media_source: MediaSource::Question
-                }
-            }
+            rsx! {game_media_content { question: question.clone(), media_source: MediaSource::Question }}
         }
         BoardUpdate::AnswerMedia(question) => {
-            rsx! {
-                game_media_content {
-                    question: question.clone(),
-                    media_source: MediaSource::Answer
-                }
-            }
+            rsx! {game_media_content { question: question.clone(), media_source: MediaSource::Answer }}
         }
         BoardUpdate::Picking(round) => {
             let round_idx = match round {
@@ -51,7 +35,7 @@ pub fn game_board(cx: Scope) -> Element {
                     div { class: "round",
                         for (theme_idx , theme) in round.themes.iter().enumerate() {
                             div { class: "theme",
-                                div { class: "title", "Одна из тем" }
+                                game_board_theme { theme: Theme::Normal(round_idx.clone(), theme_idx.into()) }
                                 for (question_idx , question) in theme.questions.iter().enumerate() {
                                     game_board_question_button {
                                         cost: question.cost,
@@ -70,9 +54,6 @@ pub fn game_board(cx: Scope) -> Element {
     };
 
     cx.render(rsx! {
-        div { class: "game-board",
-            div { class: "board", board }
-            div { class: "timer", "" }
-        }
+        div { class: "board", board }
     })
 }

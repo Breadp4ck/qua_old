@@ -1,39 +1,35 @@
 use dioxus::prelude::*;
 use qua_game::prelude::*;
 
-use crate::Connection;
+use crate::*;
 
 pub fn game_timeout_button(cx: Scope) -> Element {
-    let maybe_connection = use_shared_state::<Connection>(cx)
-        .unwrap()
-        .write_silent();
+    let state = use_shared_state::<StateUpdate>(cx).unwrap();
 
-    let client = if let Some(connection) = &*maybe_connection {
-        Some(connection.clone())
-    } else {
-        None
-    };
-
-    let press = move |_| {
-        to_owned!(client);
-
-        cx.spawn({
-            async move {
-                if let Some(client) = client {
-                    let client = client.lock().await;
-                    client.send_string(
-                        &serde_json::to_string(&ClientMessage::Input(
-                            qua_game::game::InputEvent::Timeout,
-                        ))
-                        .unwrap(),
-                    );
-                }
-            }
-        });
+    let (disabled, hidden) = match &*state.read() {
+        StateUpdate::Init => (false, true),
+        StateUpdate::Greet => (false, false),
+        StateUpdate::Overview => (false, false),
+        StateUpdate::Picking => (true, false),
+        StateUpdate::QuestionAppearance => (false, false),
+        StateUpdate::QuestionMatter => (false, false),
+        StateUpdate::QuestionAsking => (false, false),
+        StateUpdate::QuaWaiting => (false, false),
+        StateUpdate::QuaQueue => (true, false),
+        StateUpdate::QuaAnswer => (false, true),
+        StateUpdate::QuestionAnswer => (false, false),
     };
 
     cx.render(rsx! {
-        div { class: "game-button", onclick: press, div { class: "text", "next" } }
+        div { 
+            game_button {
+                hidden: hidden,
+                disabled: disabled,
+                text: "skip",
+                color: "accent-bg-yellow",
+                event: ClientMessage::Input(InputEvent::Timeout),
+            }
+        }
     })
 }
 
