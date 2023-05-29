@@ -67,24 +67,40 @@ impl Game {
             .events
             .push(GameEvent::Player(PlayerUpdate::Sync));
         self.context.events.push(GameEvent::Host(HostUpdate::Sync));
-        self.context
-            .events
-            .push(GameEvent::Board(BoardUpdate::Text("КЕК".into())))
 
-        // TODO: different board states
-        // match self.state {
-        //     GameState::Init(_) => todo!(),
-        //     GameState::Greet(_) => todo!(),
-        //     GameState::Overview(_) => todo!(),
-        //     GameState::Board(_) => todo!(),
-        //     GameState::QuestionAppearance(_) => todo!(),
-        //     GameState::QuestionMatter(_) => todo!(),
-        //     GameState::QuestionAsking(_) => todo!(),
-        //     GameState::QuestionQuaWaiting(_) => todo!(),
-        //     GameState::QuestionQuaQueue(_) => todo!(),
-        //     GameState::QuestionQuaAnswering(_) => todo!(),
-        //     GameState::QuestionAnswer(_) => todo!(),
-        // }
+        let board_event = match self.state {
+            GameState::Init(_) => GameEvent::Board(BoardUpdate::Init),
+            GameState::Greet(_) => GameEvent::Board(BoardUpdate::Greet),
+            GameState::Overview(_) => GameEvent::Board(BoardUpdate::Overview),
+            GameState::Picking(_) => GameEvent::Board(BoardUpdate::Picking(self.context.round)),
+            GameState::QuestionAppearance(_) => {
+                GameEvent::Board(BoardUpdate::QuestionType(self.context.question.unwrap()))
+            }
+            GameState::QuestionMatter(_) => {
+                GameEvent::Board(BoardUpdate::QuestionMatter(self.context.question.unwrap()))
+            }
+            GameState::QuestionAsking(_) => {
+                GameEvent::Board(BoardUpdate::QuestionMedia(self.context.question.unwrap()))
+            }
+            GameState::QuestionQuaWaiting(_) => {
+                GameEvent::Board(BoardUpdate::QuestionMedia(self.context.question.unwrap()))
+            }
+            GameState::QuestionQuaQueue(_) => {
+                GameEvent::Board(BoardUpdate::QuestionMedia(self.context.question.unwrap()))
+            }
+            GameState::QuestionQuaAnswering(_) => {
+                GameEvent::Board(BoardUpdate::QuestionMedia(self.context.question.unwrap()))
+            }
+            GameState::QuestionAnswer(_) => {
+                GameEvent::Board(BoardUpdate::AnswerMedia(self.context.question.unwrap()))
+            }
+        };
+
+        self.context.events.push(board_event);
+    }
+
+    pub fn get_leader_name(&self) -> Option<PersonName> {
+        self.context.lead.clone()
     }
 
     pub fn get_players(&self) -> Vec<Player> {

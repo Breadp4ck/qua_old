@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use fermi::use_read;
+use fermi::{use_read, use_set};
 use qua_game::prelude::*;
 
 use super::prelude::*;
@@ -11,8 +11,9 @@ pub fn game_board(cx: Scope) -> Element {
     let package = use_read(cx, PACKAGE_RESOURCE);
 
     let board = match &*board {
-        BoardUpdate::Init => rsx! { div { class: "message", "Синхронизировано" } },
-        BoardUpdate::Text(text) => rsx! { div { class: "message", "{text}" } },
+        BoardUpdate::Init => rsx! { div { class: "message", "Waiting for players" } },
+        BoardUpdate::Greet => rsx! { div { class: "message", "qua!" } },
+        BoardUpdate::Overview => rsx! {div { class: "message", "PACKAGE_THEMES_PLACEHOLDER" }},
         BoardUpdate::QuestionType(question) => rsx! { div { class: "message", "Внимание, вопрос!" } },
         BoardUpdate::QuestionMatter(question) => {
             rsx! { game_question_matter { question: question.clone() } }

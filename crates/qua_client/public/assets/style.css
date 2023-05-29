@@ -36,10 +36,15 @@
     --accent-green: hsl(var(--accent-green-hue), 55%, 70%);
     --accent-blue: hsl(var(--accent-blue-hue), 55%, 70%);
 
-    --accent-red-dark: hsl(var(--accent-red-hue), 55%, 40%);
-    --accent-yellow-dark: hsl(var(--accent-yellow-hue), 55%, 40%);
-    --accent-green-dark: hsl(var(--accent-green-hue), 55%, 40%);
-    --accent-blue-dark: hsl(var(--accent-blue-hue), 55%, 40%);
+    --accent-red-dark: hsl(var(--accent-red-hue), 25%, 45%);
+    --accent-yellow-dark: hsl(var(--accent-yellow-hue), 25%, 45%);
+    --accent-green-dark: hsl(var(--accent-green-hue), 25%, 45%);
+    --accent-blue-dark: hsl(var(--accent-blue-hue), 25%, 45%);
+
+    --accent-red-light: hsl(var(--accent-red-hue), 75%, 85%);
+    --accent-yellow-light: hsl(var(--accent-yellow-hue), 25%, 85%);
+    --accent-green-light: hsl(var(--accent-green-hue), 75%, 85%);
+    --accent-blue-light: hsl(var(--accent-blue-hue), 75%, 85%);
 
     --body-bg: hsl(var(--main-hue), 10%, 10%);
 
@@ -65,6 +70,78 @@
 .accent-bg-blue {
     background-color: var(--accent-blue);
 }
+.accent-bg-red-dark {
+    background-color: var(--accent-red-dark);
+}
+.accent-bg-yellow-dark {
+    background-color: var(--accent-yellow-dark);
+}
+.accent-bg-green-dark {
+    background-color: var(--accent-green-dark);
+}
+.accent-bg-blue-dark {
+    background-color: var(--accent-blue-dark);
+}
+.accent-fg-red {
+    color: var(--accent-red);
+}
+.accent-fg-yellow {
+    color: var(--accent-yellow);
+}
+.accent-fg-green {
+    color: var(--accent-green);
+}
+.accent-fg-blue {
+    color: var(--accent-blue);
+}
+.accent-fg-red-dark {
+    color: var(--accent-red-dark);
+}
+.accent-fg-yellow-dark {
+    color: var(--accent-yellow-dark);
+}
+.accent-fg-green-dark {
+    color: var(--accent-green-dark);
+}
+.accent-fg-blue-dark {
+    color: var(--accent-blue-dark);
+}
+.accent-bg-btn-red {
+    background-color: var(--accent-red);
+}
+.accent-bg-btn-yellow {
+    background-color: var(--accent-yellow);
+}
+.accent-bg-btn-green {
+    background-color: var(--accent-green);
+}
+.accent-bg-btn-blue {
+    background-color: var(--accent-blue);
+}
+.accent-bg-btn-red:hover {
+    background-color: var(--accent-red-light);
+}
+.accent-bg-btn-yellow:hover {
+    background-color: var(--accent-yellow-light);
+}
+.accent-bg-btn-green:hover {
+    background-color: var(--accent-green-light);
+}
+.accent-bg-btn-blue:hover {
+    background-color: var(--accent-blue-light);
+}
+.accent-focus-red:focus {
+    outline: 3px solid var(--accent-red);
+}
+.accent-focus-yellow:focus {
+    outline: 3px solid var(--accent-yellow);
+}
+.accent-focus-green:focus {
+    outline: 3px solid var(--accent-green);
+}
+.accent-focus-blue:focus {
+    outline: 3px solid var(--accent-blue);
+}
 
 @font-face {
     font-family: Xolonium;
@@ -80,6 +157,14 @@ body {
 
     font-family: var(--main-font-name);
     background-color: var(--body-bg);
+
+    background-color: #0c1313;
+    background: linear-gradient(135deg, #161e1e55 25%, transparent 25%) -40px 0/ 80px 80px, linear-gradient(225deg, #161e1e 25%, transparent 25%) -40px 0/ 80px 80px, linear-gradient(315deg, #161e1e55 25%, transparent 25%) 0px 0/ 80px 80px, linear-gradient(45deg, #161e1e 25%, #0c1313 25%) 0px 0/ 80px 80px;
+
+    /*
+    background-image: url("/assets/bg/qua_bg.png");
+    background-size: cover;
+    */
 
     user-select: none;
 }
@@ -206,30 +291,70 @@ nav .impressive:hover {
 
 /* MENU FORMS */
 
-form.join-game {
+.menu form {
+    background-color: var(--nav-bg);
+    color: var(--light-color);
+    border-radius: var(--default-border-radius);
+    border: 1px solid var(--dark-color);
+    width: 400px;
 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.join-game-input {
+.menu form .top {
     margin: 1em;
-    padding: 1em;
-    flex-grow: 1;
-
-    background-color: white;
-    box-shadow: 0 0 0 2px #0a0c06;
+    margin-bottom: 3em;
+    display: flex;
+    flex-direction: column;
 }
-
-.join-game-input input {
-    display: block;
+.menu form .top div {
+    display: flex;
+    flex-direction: column;
+    margin: 1em;
 }
-
-.join-game-input input[type=label] {
-    background-color: white;
+.menu form .top div label {
+    font-family: var(--accent-font-name);
+    font-size: 2em;
 }
+.menu form .top div input {
+    box-sizing: border-box;
+    padding: 16px;
+    color: var(--dark-color);
+    border: 1px solid var(--dark-color);
+    font-size: 1.25em;
+}
+.menu form .top div input[type=file] {
+    background-color: var(--light-color);
+}
+.menu form .top div input[type=file]::file-selector-button {
+    border: 1px solid var(--dark-color);
+    background-color: var(--light-color);
+    border-radius: var(--half-border-radius);
+    padding: 4px;
+    cursor: pointer;
+}
+.menu form .top div input[type=file]::file-selector-button:hover {
+    background-color: var(--accent-red-light);
+}
+.menu form .bottom {
+    color: var(--light-color);
+    border-bottom-left-radius: var(--default-border-radius);
+    border-bottom-right-radius: var(--default-border-radius);
+}
+.menu form .bottom input {
+    width: 100%;
+    height: 100%;
+    padding: 24px;
 
-.join-game-input input[type=text] {
-    background-color: white;
-    border: 2px dotted #0a0c06;
+    font-family: var(--accent-font-name);
+    font-size: 2em;
+
+    background-color: transparent;
+    border: none;
+
+    cursor: pointer;
 }
 
 /* GAME */
@@ -316,6 +441,28 @@ form.join-game {
     font-size: 2em;
 }
 
+.player-card .lead {
+    display: flex;
+    margin-left: auto;
+    float: right;
+    text-align: right;
+
+    border: 1px solid var(--dark-color);
+    border-radius: var(--default-border-radius);
+    background-color: var(--accent-yellow);
+    padding: 2.25em;
+}
+.player-card:hover .lead-placeholder {
+    display: flex;
+    margin-left: auto;
+    float: right;
+    text-align: right;
+
+    border: 5px dashed var(--neutral-color);
+    border-radius: var(--default-border-radius);
+    padding: 2.25em;
+}
+
 /* BOARD */
 
 .game-board {
@@ -355,14 +502,13 @@ form.join-game {
 .game-board .board .round .title {
     margin: 5px;
     justify-content: center;
+    text-align: center;
     align-items: center;
     display: flex;
     width: 25%;
 
     font-size: 2em;
     color: var(--accent-yellow);
-
-    border-bottom: 1px solid var(--light-color);
 }
 
 .game-board .board .round .question {
@@ -563,6 +709,21 @@ form.join-game {
 
     transition-duration: 0.05s;
     cursor: pointer;
+
+    display: flex;
+    border-radius: var(--default-border-radius);
+    box-shadow: 8px 8px var(--dark-color);
+    align-items: center;
+    justify-content: center;
+
+    color: var(--dark-color);
+    font-size: 3em;
+    font-family: var(--accent-font-name);
+}
+
+.game-button-disabled {
+    margin: 0.5em 1em;
+    height: 2em;
 
     display: flex;
     border-radius: var(--default-border-radius);

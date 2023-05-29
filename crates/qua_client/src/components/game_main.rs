@@ -25,10 +25,8 @@ pub fn game_main(cx: Scope) -> Element {
         div { class: "center-screen",
             div { class: "game",
                 div { class: "left", game_player_list {} }
-                div {
-                    class: "center",
-                    div {
-                        class: "game-board",
+                div { class: "center",
+                    div { class: "game-board",
                         game_board {}
                         game_progress_bar {}
                     }

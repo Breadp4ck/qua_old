@@ -23,13 +23,13 @@ pub fn game_answer_button(cx: Scope) -> Element {
     };
 
     cx.render(rsx! {
-        div { 
+        div {
             game_button {
                 hidden: hidden,
                 disabled: disabled,
                 text: "qua!",
                 color: "accent-bg-yellow",
-                event: ClientMessage::Input(InputEvent::Answer(Duration::from_secs(1))),
+                event: ClientMessage::Input(InputEvent::Answer(Duration::from_secs(1)))
             }
         }
     })

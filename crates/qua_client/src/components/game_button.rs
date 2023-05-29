@@ -40,7 +40,10 @@ pub fn game_button<'game>(cx: Scope<'game, GameButtonProps<'game>>) -> Element {
         });
     };
 
-    cx.render(rsx! {
-        div { class: "game-button {cx.props.color}", onclick: press, "{cx.props.text}" }
-    })
+    if cx.props.disabled {
+        cx.render(rsx! { div { class: "game-button-disabled {cx.props.color}-dark", "{cx.props.text}" } })
+    } else {
+        cx.render(rsx! { div { class: "game-button {cx.props.color}", onclick: press, "{cx.props.text}" } })
+    }
+
 }

@@ -17,7 +17,7 @@ impl GameStateInteraction for InitGameState {
             (InputEvent::Begin, Person::Host(_)) => {
                 context
                     .events
-                    .push(GameEvent::Board(BoardUpdate::Text("ВСЕМ ПРИВЕТ".into())));
+                    .push(GameEvent::Board(BoardUpdate::Greet));
 
                 Some(GameState::Greet(GreetGameState::default()))
             }

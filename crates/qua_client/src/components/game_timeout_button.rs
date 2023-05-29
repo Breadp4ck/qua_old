@@ -21,13 +21,13 @@ pub fn game_timeout_button(cx: Scope) -> Element {
     };
 
     cx.render(rsx! {
-        div { 
+        div {
             game_button {
                 hidden: hidden,
                 disabled: disabled,
                 text: "skip",
                 color: "accent-bg-yellow",
-                event: ClientMessage::Input(InputEvent::Timeout),
+                event: ClientMessage::Input(InputEvent::Timeout)
             }
         }
     })

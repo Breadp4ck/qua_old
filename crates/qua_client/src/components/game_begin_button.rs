@@ -15,13 +15,13 @@ pub fn game_begin_button(cx: Scope) -> Element {
     };
 
     cx.render(rsx! {
-        div { 
+        div {
             game_button {
                 hidden: hidden,
                 disabled: disabled,
                 text: "begin!",
                 color: "accent-bg-yellow",
-                event: ClientMessage::Input(InputEvent::Begin),
+                event: ClientMessage::Input(InputEvent::Begin)
             }
         }
     })

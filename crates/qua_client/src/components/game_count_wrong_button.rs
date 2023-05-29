@@ -15,13 +15,13 @@ pub fn game_count_wrong_button(cx: Scope) -> Element {
     };
 
     cx.render(rsx! {
-        div { 
+        div {
             game_button {
                 hidden: hidden,
                 disabled: disabled,
                 text: "wrong",
                 color: "accent-bg-red",
-                event: ClientMessage::Input(InputEvent::CountWrong),
+                event: ClientMessage::Input(InputEvent::CountWrong)
             }
         }
     })

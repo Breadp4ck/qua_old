@@ -1,3 +1,4 @@
+mod create_room_form;
 mod game_answer_button;
 mod game_begin_button;
 mod game_board;
@@ -18,12 +19,14 @@ mod game_progress_bar;
 mod game_question_matter;
 mod game_timeout_button;
 mod game_timer;
+mod join_room_form;
 mod menu_card;
 mod nav;
 
 pub(crate) mod prelude {
     pub use super::*;
 
+    pub use super::create_room_form::*;
     pub use super::game_answer_button::*;
     pub use super::game_begin_button::*;
     pub use super::game_board::*;
@@ -44,6 +47,7 @@ pub(crate) mod prelude {
     pub use super::game_question_matter::*;
     pub use super::game_timeout_button::*;
     pub use super::game_timer::*;
+    pub use super::join_room_form::*;
     pub use super::menu_card::*;
     pub use super::nav::*;
 }

@@ -28,38 +28,18 @@ pub fn game_progress_bar(cx: Scope) -> Element {
 
     match progress {
         ProgressState::Leak { secs } => cx.render(rsx! {
-            div {
-                class: "timer",
-                span {
-                    style: "width:100%;",
-                    span {
-                        style: "animation-duration: {secs}s;",
-                        class: "progress"
-                    }
-                }
+            div { class: "timer",
+                span { style: "width:100%;", span { style: "animation-duration: {secs}s;", class: "progress" } }
             }
         }),
         ProgressState::Freeze { percent } => cx.render(rsx! {
-            div {
-                class: "timer",
-                span {
-                    style: "width:100%;",
-                    span {
-                        style: "width:{percent}%",
-                        class: "progress-wait"
-                    }
-                }
+            div { class: "timer",
+                span { style: "width:100%;", span { style: "width:{percent}%", class: "progress-wait" } }
             }
         }),
         ProgressState::Nothing => cx.render(rsx! {
-            div {
-                class: "timer",
-                span {
-                    style: "width:100%;",
-                    span {
-                        class: "progress-wait"
-                    }
-                }
+            div { class: "timer",
+                span { style: "width:100%;", span { class: "progress-wait" } }
             }
         }),
     }

@@ -16,12 +16,14 @@ use services::prelude::*;
 use tokio::sync::Mutex;
 use wasm_sockets::PollingClient;
 
+#[derive(PartialEq, Eq, Clone, Copy)]
 enum PersonType {
     Lead,
     Player,
     Host,
 }
 
+static INFO: Atom<String> = |_| "You have joined the game.".into();
 static TICKET: Atom<Option<Ticket>> = |_| None;
 static TIMER: Atom<Option<Duration>> = |_| None;
 static PERSON_TYPE: Atom<PersonType> = |_| PersonType::Player;

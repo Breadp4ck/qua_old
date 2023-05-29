@@ -14,7 +14,8 @@ pub enum GameEvent {
 #[derive(Clone, Serialize, Deserialize)]
 pub enum BoardUpdate {
     Init,
-    Text(String),
+    Greet,
+    Overview,
     QuestionType(Question),
     QuestionMatter(Question),
     QuestionMedia(Question),

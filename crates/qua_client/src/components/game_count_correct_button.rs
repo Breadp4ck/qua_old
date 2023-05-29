@@ -15,13 +15,13 @@ pub fn game_count_correct_button(cx: Scope) -> Element {
     };
 
     cx.render(rsx! {
-        div { 
+        div {
             game_button {
                 hidden: hidden,
                 disabled: disabled,
                 text: "correct",
                 color: "accent-bg-green",
-                event: ClientMessage::Input(InputEvent::CountCorrect),
+                event: ClientMessage::Input(InputEvent::CountCorrect)
             }
         }
     })
