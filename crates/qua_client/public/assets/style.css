@@ -186,24 +186,30 @@ nav:hover {
     box-shadow: 0 0 18px 2px var(--fg-color);
 }
 
+nav div,
 nav a {
-    text-decoration: none;
-    color: var(--contrast-color);
-
     padding: 0.5em 1.25em 0.5em 1.25em;
     height: 2em;
     text-align: center;
     align-items: center;
+    display: flex;
+
+    text-decoration: none;
+    color: var(--contrast-color);
+    cursor: pointer;
 }
 
+nav div.to-left,
 nav a.to-left {
     float: left;
 }
 
+nav div.to-right,
 nav a.to-right {
     float: right;
 }
 
+nav div:hover,
 nav a:hover {
     background-color: var(--nav-btn-hover-bg);
 }
