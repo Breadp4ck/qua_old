@@ -12,23 +12,23 @@ pub struct PackageState {
 
 impl PackageState {
     pub fn mark_answered(&mut self, question: &Question) {
-        match question {
+        match *question {
             Question::Final(_) => {}
             Question::Normal(round_idx, theme_idx, question_idx) => {
-                self.rounds[round_idx.idx()]
-                    .themes[theme_idx.idx()]
-                    .questions[question_idx.idx()].answered = true;
+                self.rounds[round_idx]
+                    .themes[theme_idx]
+                    .questions[question_idx].answered = true;
             }
         }
     }
 
     pub fn get(&self, question: &Question) -> &QuestionState{
-        match question {
+        match *question {
             Question::Final(_) => todo!(),
             Question::Normal(round_idx, theme_idx, question_idx) => {
-                &self.rounds[round_idx.idx()]
-                    .themes[theme_idx.idx()]
-                    .questions[question_idx.idx()]
+                &self.rounds[round_idx]
+                    .themes[theme_idx]
+                    .questions[question_idx]
             }
         }
 

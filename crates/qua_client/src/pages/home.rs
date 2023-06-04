@@ -6,7 +6,7 @@ pub fn home(cx: Scope) -> Element {
         div { class: "center-screen menu",
             menu_card {
                 to: "/create",
-                header: "CREAETE",
+                header: "CREATE",
                 description: "Create new room",
                 color_accent_class: "accent-bg-red",
                 icon_src: "assets/icons/play-circle-outline.svg",

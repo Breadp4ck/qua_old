@@ -11,8 +11,8 @@ pub struct PackageConfig {
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Info {
-    pub name: String,
-    pub version: String,
+    pub name: Option<String>,
+    pub version: Option<String>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -119,5 +119,17 @@ impl PackageConfig {
             fs::read_to_string(path).expect("Should have been able to read the file");
 
         Self::from_toml(&package_content)
+    }
+}
+
+impl Default for PackageConfig {
+    fn default() -> Self {
+        Self {
+            info: Info {
+                name: None,
+                version: None,
+            },
+            rounds: vec![],
+        }
     }
 }

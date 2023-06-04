@@ -16,7 +16,7 @@ pub use game_events::*;
 pub use game_inputs::*;
 pub use states::*;
 
-#[derive(Serialize, Deserialize, Clone, Copy)]
+#[derive(PartialEq, Eq, Serialize, Deserialize, Clone, Copy)]
 pub enum Round {
     Normal(RoundIndex),
     Final,

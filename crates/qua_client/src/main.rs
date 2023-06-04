@@ -54,6 +54,7 @@ fn app(cx: Scope) -> Element {
             Route { to: "/create", self::create {} }
             Route { to: "/join", self::join {} }
             Route { to: "/room", self::room {} }
+            Route { to: "/package", self::package_editor {} }
             Route { to: "", self::not_found {} }
         }
     ))

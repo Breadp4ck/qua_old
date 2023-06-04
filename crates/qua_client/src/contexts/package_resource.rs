@@ -105,7 +105,7 @@ impl PackageResource {
                     };
 
                     let index =
-                        Question::Normal(round_idx.into(), theme_idx.into(), item_idx.into());
+                        Question::Normal(round_idx, theme_idx, item_idx);
                     urls.insert(index, (question_url_content, answer_url_content));
                 }
             }
@@ -162,7 +162,7 @@ impl PackageResource {
     pub fn get_theme(&self, theme: Theme) -> String {
         match theme {
             Theme::Normal(round_idx, theme_idx) => {
-                self.config.rounds[round_idx.idx()].themes[theme_idx.idx()].name.clone()
+                self.config.rounds[round_idx].themes[theme_idx].name.clone()
             }
         }
     }
@@ -186,9 +186,9 @@ impl PackageResource {
         match question {
             Question::Normal(round_index, theme_index, question_index) => {
                 // TODO: Maybe return None
-                let round = &self.config.rounds[round_index.idx()];
-                let theme = &round.themes[theme_index.idx()];
-                let question = &theme.items[question_index.idx()];
+                let round = &self.config.rounds[round_index];
+                let theme = &round.themes[theme_index];
+                let question = &theme.items[question_index];
 
                 return Some(question.clone());
             }

@@ -15,7 +15,7 @@ impl Default for GameContext {
     fn default() -> Self {
         Self {
             events: vec![],
-            round: Round::Normal(0.into()),
+            round: Round::Normal(0),
             host: None,
             lead: None,
             question: None,
