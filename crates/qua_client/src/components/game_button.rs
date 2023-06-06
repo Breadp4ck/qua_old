@@ -45,5 +45,4 @@ pub fn game_button<'game>(cx: Scope<'game, GameButtonProps<'game>>) -> Element {
     } else {
         cx.render(rsx! { div { class: "game-button {cx.props.color}", onclick: press, "{cx.props.text}" } })
     }
-
 }

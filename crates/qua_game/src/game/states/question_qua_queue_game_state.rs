@@ -42,6 +42,10 @@ impl GameStateInteraction for QuestionQuaQueueGameState {
             (InputEvent::Timeout, Person::Host(_)) => Some(GameState::QuestionQuaAnswering(
                 QuestionQuaAnsweringGameState::new(self.get_first()),
             )),
+            (InputEvent::Answer(delta), Person::Player(_)) => {
+                self.persons_attracted.insert(author.clone(), *delta);
+                None
+            }
             _ => None,
         }
     }

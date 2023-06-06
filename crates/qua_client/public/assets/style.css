@@ -242,7 +242,19 @@ nav .impressive:hover {
 /* MENU */
 
 .menu {
+    display: flex;
+    flex-direction: column;
+}
 
+.menu .menu-cards {
+    
+}
+
+.menu .menu-footer {
+    margin-top: 36px;
+    color: var(--neutral-color-dark);
+    font-family: var(--accent-font-name);
+    font-size: 2em;
 }
 
 .menu-card {
@@ -823,6 +835,16 @@ nav .impressive:hover {
     border-top-left-radius: var(--default-border-radius);
     border-top-right-radius: var(--default-border-radius);
 }
+.package-card-list .package-card .header .text {
+    display: flex;
+    padding: 8px;
+    padding-left: 24px;
+    font-size: 1.75em;
+    font-family: var(--accent-font-name);
+    color: var(--light-color);
+    background-color: var(--neutral-color-dark);
+    border-top-left-radius: var(--default-border-radius);
+}
 .package-card-list .package-card .header .text-edit {
     display: flex;
     padding: 8px;
@@ -834,8 +856,7 @@ nav .impressive:hover {
     color: var(--light-color);
     background-color: var(--neutral-color-dark);
     border-top-left-radius: var(--default-border-radius);
-    text-decoration-line: underline;
-    text-decoration-style: dotted;
+    text-decoration: dashed underline var(--neutral-color-light) 1px;
 }
 .package-card-list .package-card .header .remove {
     color: var(--dark-color);
@@ -868,8 +889,7 @@ nav .impressive:hover {
     font-family: var(--accent-font-name);
     font-size: 1em;
     color: var(--light-color);
-    text-decoration-line: underline;
-    text-decoration-style: dotted;
+    text-decoration: dashed underline var(--neutral-color-light) 1px;
     background-color: transparent;
     border: none;
     outline: none;
@@ -884,6 +904,12 @@ nav .impressive:hover {
     border-radius: var(--default-border-radius);
     padding: 12px 30px;
     text-align: center;
+}
+.package-card-list .package-card .body .no-themes {
+    padding: 12px 30px 20px 30px;
+    text-align: center;
+    font-family: var(--accent-font-name);
+    color: var(--neutral-color-dark);
 }
 .package-card-list .package-card .body ul {
     list-style-type: decimal;
@@ -903,8 +929,7 @@ nav .impressive:hover {
     font-family: var(--accent-font-name);
     font-size: 1em;
     color: var(--light-color);
-    text-decoration-line: underline;
-    text-decoration-style: dotted;
+    text-decoration: dashed underline var(--neutral-color-light) 1px;
     background-color: transparent;
     border: none;
     outline: none;
@@ -943,6 +968,6 @@ nav .impressive:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 90vh;
+    min-height: calc(100vh - 50px);
 }
 

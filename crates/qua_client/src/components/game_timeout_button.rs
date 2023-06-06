@@ -18,6 +18,7 @@ pub fn game_timeout_button(cx: Scope) -> Element {
         StateUpdate::QuaQueue => (true, false),
         StateUpdate::QuaAnswer => (false, true),
         StateUpdate::QuestionAnswer => (false, false),
+        StateUpdate::Ending => (false, true),
     };
 
     cx.render(rsx! {

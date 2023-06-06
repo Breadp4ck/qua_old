@@ -2,11 +2,13 @@ use qua_game::{game::Question, prelude::Theme, scores::Scores};
 use qua_package::package_config::{AnswerContent, ItemData, PackageConfig, QuestionContent};
 use std::{
     collections::HashMap,
-    io::{Cursor, Read},
+    io::{Cursor, Read, Write},
     path::Path,
 };
 use web_sys::*;
-use zip::read::ZipFile;
+use zip::{read::ZipFile, ZipWriter};
+
+use crate::components::prelude::{QuestionsData, AnswersData};
 
 pub struct PackageResourceItem {
     pub title: String,
@@ -104,8 +106,7 @@ impl PackageResource {
                         AnswerContent::Empty => ResourceUrlContent::Empty,
                     };
 
-                    let index =
-                        Question::Normal(round_idx, theme_idx, item_idx);
+                    let index = Question::Normal(round_idx, theme_idx, item_idx);
                     urls.insert(index, (question_url_content, answer_url_content));
                 }
             }
@@ -141,9 +142,6 @@ impl PackageResource {
             }
             "txt" => {
                 properties.type_("text/plain");
-            }
-            "md" => {
-                properties.type_("text/x-markdown");
             }
             "mp3" => {
                 properties.type_("audio/mp3");
@@ -196,5 +194,56 @@ impl PackageResource {
                 todo!()
             }
         }
+    }
+
+    pub fn export(config: &PackageConfig, questions: &QuestionsData, answers: &AnswersData) -> Vec<u8> {
+        let mut output: Vec<u8> = Vec::new();
+
+        {
+            let mut zip = ZipWriter::new(Cursor::new(&mut output));
+            let options = zip::write::FileOptions::default()
+                .compression_method(zip::CompressionMethod::Stored);
+
+            zip.add_directory("media/", options);
+
+            for (round_idx, round) in config.rounds.iter().enumerate() {
+                zip.add_directory(format!("media/{}", round_idx), options);
+
+                for (theme_idx, theme) in round.themes.iter().enumerate() {
+                    zip.add_directory(format!("media/{}/{}", round_idx, theme_idx), options);
+
+                    for (question_idx, item) in theme.items.iter().enumerate() {
+                        match &item.question_content {
+                            QuestionContent::Text { text_src } => {
+                                zip.start_file(&*text_src, options);
+                                zip.write(questions.get(&Question::Normal(round_idx, theme_idx, question_idx)).unwrap()).unwrap();
+                            }
+                            QuestionContent::Picture { picture_src } => {
+                                zip.start_file(&*picture_src, options);
+                                zip.write(questions.get(&Question::Normal(round_idx, theme_idx, question_idx)).unwrap()).unwrap();
+
+                            },
+                            QuestionContent::Sound { sound_src, cover_src } => {
+                                zip.start_file(&*sound_src, options);
+                                zip.write(questions.get(&Question::Normal(round_idx, theme_idx, question_idx)).unwrap()).unwrap();
+                            }
+                            QuestionContent::Video { video_src } => {
+                                zip.start_file(&*video_src, options);
+                                zip.write(questions.get(&Question::Normal(round_idx, theme_idx, question_idx)).unwrap()).unwrap();
+                            }
+                            QuestionContent::Empty => (),
+                        }
+                    }
+                }
+            }
+
+            let config_string = toml::to_string(config).unwrap();
+            zip.start_file("Pack.toml", options);
+            zip.write(config_string.as_bytes()).unwrap();
+
+            zip.finish().unwrap();
+        }
+
+        output
     }
 }

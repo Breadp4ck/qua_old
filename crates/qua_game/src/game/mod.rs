@@ -94,6 +94,7 @@ impl Game {
             GameState::QuestionAnswer(_) => {
                 GameEvent::Board(BoardUpdate::AnswerMedia(self.context.question.unwrap()))
             }
+            GameState::Ending(_) => GameEvent::Board(BoardUpdate::Ending),
         };
 
         self.context.events.push(board_event);
@@ -113,6 +114,17 @@ impl Game {
         }
 
         players
+    }
+
+    pub fn best_player(&self) -> Option<Player> {
+        let players = self.get_players();
+        let maybe_player = players.iter().max_by(|a, b| a.scores().cmp(&b.scores()));
+
+        if let Some(player) = maybe_player {
+            return Some(player.clone())
+        } else {
+            return None
+        }
     }
 
     pub fn get_host(&self) -> Option<Host> {

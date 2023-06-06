@@ -11,7 +11,7 @@ use crate::{Connection, TIMER};
 use super::prelude::GameTimer;
 
 pub fn game_timer(cx: Scope) -> Element {
-    let timer = use_shared_state::<Option<Duration>>(cx).unwrap();
+    let timer = use_shared_state::<GameTimer>(cx).unwrap();
     let maybe_connection = use_shared_state::<Connection>(cx).unwrap().write_silent();
 
     let client: Arc<Mutex<PollingClient>> = if let Some(connection) = &*maybe_connection {
@@ -26,7 +26,7 @@ pub fn game_timer(cx: Scope) -> Element {
         to_owned!(timer);
 
         async move {
-            if let Some(time) = time {
+            if let Some(time) = time.0 {
                 let mut interval = async_timer::Interval::platform_new(time.clone());
                 let wanna_send = serde_json::to_string(&ClientMessage::Input(InputEvent::Timeout))
                     .expect("Failed to serialize");
@@ -34,7 +34,7 @@ pub fn game_timer(cx: Scope) -> Element {
                 interval.wait().await;
 
                 let mut timer = timer.write_silent();
-                *timer = None;
+                *timer = GameTimer(None);
 
                 client
                     .lock()

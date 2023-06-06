@@ -47,6 +47,9 @@ fn not_found(cx: Scope) -> Element {
 fn app(cx: Scope) -> Element {
     use_init_atom_root(cx);
 
+    let prevent_reload = js_sys::Function::new_no_args("return 'Are you sure?'");
+    web_sys::window().unwrap().set_onbeforeunload(Some(&prevent_reload));
+
     cx.render(rsx! (
         Router { 
             self::nav {}

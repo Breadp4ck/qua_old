@@ -50,7 +50,7 @@ pub fn game_media_content(cx: Scope<GameMediaContentProps>) -> Element {
 
         let (general, url) = match cx.props.media_source {
             MediaSource::Answer => (item.answer.clone(), item.answer_url_content.clone()),
-            MediaSource::Question => (item.answer.clone(), item.question_url_content.clone()),
+            MediaSource::Question => (item.title.clone(), item.question_url_content.clone()),
         };
 
         match url {

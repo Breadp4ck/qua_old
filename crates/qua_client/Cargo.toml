@@ -25,4 +25,5 @@ wasm-sockets.workspace = true
 zip.workspace = true
 web-sys.workspace = true
 wasm-bindgen.workspace = true
-js-sys. workspace = true
+js-sys.workspace = true
+toml.workspace = true

@@ -52,6 +52,17 @@ pub fn game_board(cx: Scope) -> Element {
                 rsx! { div {} }
             }
         }
+        BoardUpdate::Ending => {
+            if let Some(winner) = game.best_player() {
+                rsx! {
+                    div { class: "message", "{winner.name()}\nhave win the game\nwith {winner.scores()} scores!" }
+                }
+            } else {
+                rsx! {
+                    div { class: "message", "There is no winner" }
+                }
+            }
+        },
     };
 
     cx.render(rsx! {

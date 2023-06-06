@@ -12,7 +12,8 @@ pub struct PackageConfig {
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Info {
     pub name: Option<String>,
-    pub version: Option<String>,
+    pub author: Option<String>,
+    pub version: String,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -127,7 +128,8 @@ impl Default for PackageConfig {
         Self {
             info: Info {
                 name: None,
-                version: None,
+                author: None,
+                version: "0.1.0".into(),
             },
             rounds: vec![],
         }

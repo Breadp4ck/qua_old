@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::PackageResource;
 use crate::components::prelude::*;
 use dioxus::prelude::*;
 use qua_game::prelude::{Theme, Question};
@@ -21,7 +22,11 @@ pub fn package_editor(cx: Scope) -> Element {
             div { class: "package-editor",
                 div { class: "rounds", package_round_card_list {} }
                 div { class: "questions", package_question_card_list {} }
-                div { class: "general" }
+                div { class: "general",
+                    package_info_card {}
+                    package_save_button {}
+                    package_open_button {}
+                }
             }
         }
     })

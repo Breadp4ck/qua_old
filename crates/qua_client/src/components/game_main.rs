@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::Duration};
+use std::{sync::Arc, time::{Duration, SystemTime}};
 
 use qua_game::prelude::*;
 
@@ -7,7 +7,9 @@ use dioxus::prelude::*;
 use tokio::sync::Mutex;
 use wasm_sockets::PollingClient;
 
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub struct GameTimer(pub Option<Duration>); // autostart timer
+pub struct QuaWaitingTime(pub Option<SystemTime>); // autostart timer
 
 pub fn game_main(cx: Scope) -> Element {
     use_shared_state_provider(cx, || Game::new(PackageState::default()));
@@ -16,7 +18,9 @@ pub fn game_main(cx: Scope) -> Element {
     use_shared_state_provider(cx, || PlayerUpdate::Sync);
     use_shared_state_provider(cx, || HostUpdate::Sync);
     use_shared_state_provider(cx, || StateUpdate::Init);
-    use_shared_state_provider(cx, || None::<Duration>);
+    use_shared_state_provider(cx, || GameTimer(None));
+    use_shared_state_provider(cx, || QuaWaitingTime(None));
+
     let person_type = use_read(cx, PERSON_TYPE);
 
     cx.render(rsx! {

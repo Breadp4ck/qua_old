@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 use super::*;
 
+mod ending_game_state;
 mod greet_game_state;
 mod init_game_state;
 mod overview_game_state;
@@ -15,6 +16,7 @@ mod question_qua_answering_game_state;
 mod question_qua_queue_game_state;
 mod question_qua_waiting_game_state;
 
+pub use ending_game_state::*;
 pub use greet_game_state::*;
 pub use init_game_state::*;
 pub use overview_game_state::*;
@@ -53,6 +55,7 @@ pub enum GameState {
     QuestionQuaQueue(QuestionQuaQueueGameState),
     QuestionQuaAnswering(QuestionQuaAnsweringGameState),
     QuestionAnswer(QuestionAnswerGameState),
+    Ending(EndingGameState),
 }
 
 impl GameState {
@@ -62,13 +65,28 @@ impl GameState {
             GameState::Greet(_) => context.events.push(GameEvent::State(StateUpdate::Greet)),
             GameState::Overview(_) => context.events.push(GameEvent::State(StateUpdate::Overview)),
             GameState::Picking(_) => context.events.push(GameEvent::State(StateUpdate::Picking)),
-            GameState::QuestionAppearance(_) => context.events.push(GameEvent::State(StateUpdate::QuestionAppearance)),
-            GameState::QuestionMatter(_) => context.events.push(GameEvent::State(StateUpdate::QuestionMatter)),
-            GameState::QuestionAsking(_) => context.events.push(GameEvent::State(StateUpdate::QuestionAsking)),
-            GameState::QuestionQuaWaiting(_) => context.events.push(GameEvent::State(StateUpdate::QuaWaiting)),
-            GameState::QuestionQuaQueue(_) => context.events.push(GameEvent::State(StateUpdate::QuaQueue)),
-            GameState::QuestionQuaAnswering(_) => context.events.push(GameEvent::State(StateUpdate::QuaAnswer)),
-            GameState::QuestionAnswer(_) => context.events.push(GameEvent::State(StateUpdate::QuestionAnswer)),
+            GameState::QuestionAppearance(_) => context
+                .events
+                .push(GameEvent::State(StateUpdate::QuestionAppearance)),
+            GameState::QuestionMatter(_) => context
+                .events
+                .push(GameEvent::State(StateUpdate::QuestionMatter)),
+            GameState::QuestionAsking(_) => context
+                .events
+                .push(GameEvent::State(StateUpdate::QuestionAsking)),
+            GameState::QuestionQuaWaiting(_) => context
+                .events
+                .push(GameEvent::State(StateUpdate::QuaWaiting)),
+            GameState::QuestionQuaQueue(_) => {
+                context.events.push(GameEvent::State(StateUpdate::QuaQueue))
+            }
+            GameState::QuestionQuaAnswering(_) => context
+                .events
+                .push(GameEvent::State(StateUpdate::QuaAnswer)),
+            GameState::QuestionAnswer(_) => context
+                .events
+                .push(GameEvent::State(StateUpdate::QuestionAnswer)),
+            GameState::Ending(_) => context.events.push(GameEvent::State(StateUpdate::Ending)),
         }
     }
 
@@ -108,6 +126,9 @@ impl GameState {
                 state.handle_event(context, event, author, persons, package)
             }
             GameState::QuestionAnswer(state) => {
+                state.handle_event(context, event, author, persons, package)
+            }
+            GameState::Ending(state) => {
                 state.handle_event(context, event, author, persons, package)
             }
         }

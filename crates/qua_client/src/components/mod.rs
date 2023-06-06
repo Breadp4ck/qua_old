@@ -23,21 +23,18 @@ mod join_room_form;
 mod menu_card;
 mod nav;
 mod package_editor;
+mod package_info_card;
+mod package_open_button;
 mod package_question_card;
 mod package_question_card_list;
 mod package_round_card;
 mod package_round_card_list;
+mod package_save_button;
 mod package_theme_item;
 
 pub(crate) mod prelude {
     pub use super::*;
 
-    pub use super::package_editor::*;
-    pub use super::package_question_card::*;
-    pub use super::package_question_card_list::*;
-    pub use super::package_round_card::*;
-    pub use super::package_round_card_list::*;
-    pub use super::package_theme_item::*;
     pub use super::create_room_form::*;
     pub use super::game_answer_button::*;
     pub use super::game_begin_button::*;
@@ -63,4 +60,13 @@ pub(crate) mod prelude {
     pub use super::menu_card::*;
     pub use super::nav::*;
     pub use super::package_editor::*;
+    pub use super::package_editor::*;
+    pub use super::package_info_card::*;
+    pub use super::package_open_button::*;
+    pub use super::package_question_card::*;
+    pub use super::package_question_card_list::*;
+    pub use super::package_round_card::*;
+    pub use super::package_round_card_list::*;
+    pub use super::package_save_button::*;
+    pub use super::package_theme_item::*;
 }

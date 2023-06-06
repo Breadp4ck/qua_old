@@ -103,13 +103,17 @@ pub fn package_round_card(cx: Scope<PackageRoundCardProps>) -> Element {
                 class: "body",
                 match round {
                     Round::Normal(round_idx) => {
-                        rsx!{
-                            ul {
-                                for (theme_idx , theme) in config.read().rounds[round_idx].themes.iter().enumerate() {
-                                    li {
-                                        package_theme_item {
-                                            name: theme.name.clone(),
-                                            theme: Theme::Normal(round_idx, theme_idx),
+                        if config.read().rounds[round_idx].themes.is_empty() {
+                            rsx! { div { class: "no-themes", "There are no themes" } }
+                        } else {
+                            rsx!{
+                                ul {
+                                    for (theme_idx , theme) in config.read().rounds[round_idx].themes.iter().enumerate() {
+                                        li {
+                                            package_theme_item {
+                                                name: theme.name.clone(),
+                                                theme: Theme::Normal(round_idx, theme_idx),
+                                            }
                                         }
                                     }
                                 }

@@ -37,6 +37,6 @@ futures = "0.3"
 async-timer = "1.0.0-beta.9 "
 wasm-sockets = "1.0.0"
 zip = { version = "0.6.6", default-features = false, features = ["deflate"] }
-web-sys = { version = "0.3.63", features = ["Url", "Navigator", "Window", "Clipboard"] }
+web-sys = { version = "0.3.63", features = ["Url", "Navigator", "Window", "Clipboard", "HtmlElement", "Performance"] }
 wasm-bindgen = { version = "0.2.86" }
 js-sys = { version = "0.3.63" }

@@ -10,8 +10,6 @@ use wasm_sockets::{Message, PollingClient};
 
 use crate::*;
 
-type GameTimer = Rc<dyn Fn(Option<Duration>)>;
-
 #[derive(Clone)]
 struct GameSharedState {
     board: UseSharedState<BoardUpdate>,
@@ -25,7 +23,8 @@ async fn ws(
     state: GameSharedState,
     client: Arc<Mutex<PollingClient>>,
     synced: bool,
-    timer: UseSharedState<Option<Duration>>,
+    timer: UseSharedState<GameTimer>,
+    qua_time: UseSharedState<QuaWaitingTime>,
 ) {
     let mut interval = Interval::platform_new(Duration::from_millis(200));
     if !synced {
@@ -91,18 +90,24 @@ async fn ws(
                             GameEvent::State(update) => {
                                 let mut time = timer.write();
                                 *time = match update {
-                                    StateUpdate::Init => None,
-                                    StateUpdate::Greet => Some(Duration::from_secs(2)),
-                                    StateUpdate::Overview => Some(Duration::from_secs(2)),
-                                    StateUpdate::Picking => None,
-                                    StateUpdate::QuestionAppearance => Some(Duration::from_secs(1)),
-                                    StateUpdate::QuestionMatter => Some(Duration::from_secs(2)),
-                                    StateUpdate::QuestionAsking => Some(Duration::from_secs(1)),
-                                    StateUpdate::QuaWaiting => Some(Duration::from_secs(10)),
-                                    StateUpdate::QuaQueue => Some(Duration::from_secs(1)),
-                                    StateUpdate::QuaAnswer => Some(Duration::from_secs(10)),
-                                    StateUpdate::QuestionAnswer => Some(Duration::from_secs(2)),
+                                    StateUpdate::Init => GameTimer(None),
+                                    StateUpdate::Greet => GameTimer(Some(Duration::from_secs(2))),
+                                    StateUpdate::Overview => GameTimer(Some(Duration::from_secs(2))),
+                                    StateUpdate::Picking => GameTimer(None),
+                                    StateUpdate::QuestionAppearance => GameTimer(Some(Duration::from_secs(1))),
+                                    StateUpdate::QuestionMatter => GameTimer(Some(Duration::from_secs(2))),
+                                    StateUpdate::QuestionAsking => GameTimer(Some(Duration::from_secs(1))),
+                                    StateUpdate::QuaWaiting => GameTimer(Some(Duration::from_secs(10))),
+                                    StateUpdate::QuaQueue => GameTimer(Some(Duration::from_secs(1))),
+                                    StateUpdate::QuaAnswer => GameTimer(Some(Duration::from_secs(10))),
+                                    StateUpdate::QuestionAnswer => GameTimer(Some(Duration::from_secs(2))),
+                                    StateUpdate::Ending => GameTimer(None),
                                 };
+
+                                let mut qua_time = qua_time.write_silent();
+                                if let StateUpdate::QuaWaiting = update {
+                                    *qua_time = QuaWaitingTime(Some(TimeService::now()));
+                                }
 
                                 let mut state = state.state.write();
                                 *state = update;
@@ -119,7 +124,8 @@ async fn ws(
 pub fn game_handler(cx: Scope) -> Element {
     let ticket = use_read(cx, TICKET);
     let game = use_shared_state::<Game>(cx).unwrap();
-    let timer = use_shared_state::<Option<Duration>>(cx).unwrap();
+    let timer = use_shared_state::<GameTimer>(cx).unwrap();
+    let qua_time = use_shared_state::<QuaWaitingTime>(cx).unwrap();
 
     let mut maybe_connection = use_shared_state::<Connection>(cx).unwrap().write_silent();
     let board = use_shared_state::<BoardUpdate>(cx).unwrap();
@@ -150,8 +156,8 @@ pub fn game_handler(cx: Scope) -> Element {
     };
 
     let _: &Coroutine<()> = use_coroutine(cx, |_| {
-        to_owned!(timer);
-        ws(game.clone(), state, client, synced, timer)
+        to_owned!(timer, qua_time);
+        ws(game.clone(), state, client, synced, timer, qua_time)
     });
 
     cx.render(rsx! { div {} })

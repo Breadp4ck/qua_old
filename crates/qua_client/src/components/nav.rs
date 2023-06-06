@@ -25,7 +25,7 @@ pub fn nav(cx: Scope) -> Element {
     cx.render(rsx! {
         nav {
             // Left side of the navbar
-            Link { to: "/preferenes", class: "to-left", img { class: "nav-btn-icon", src: "assets/icons/settings-outline.svg", alt: "P" } }
+            // Link { to: "/preferenes", class: "to-left", img { class: "nav-btn-icon", src: "assets/icons/settings-outline.svg", alt: "P" } }
             Link { to: "/menu", class: "to-left", img { class: "nav-btn-icon", src: "assets/icons/home-outline.svg", alt: "P" } }
             // Right side of the navbar
             Link { to: "/notifications", class: "to-right", img { class: "nav-btn-icon", src: "assets/icons/info-outline.svg", alt: "P" } }

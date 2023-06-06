@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::*;
 use dioxus::prelude::*;
 use qua_game::prelude::*;
@@ -23,7 +25,7 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
     };
 
     let load_question_file = move |evt: Event<FormData>| {
-        to_owned!(questions);
+        to_owned!(config, questions);
 
         async move {
             if let Some(file_engine) = &evt.files {
@@ -31,6 +33,62 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                 for file_name in &files {
                     if let Some(file) = file_engine.read_file(file_name).await {
                         questions.write().insert(question, file);
+
+                        match question {
+                            Question::Final(question_idx) => todo!(),
+                            Question::Normal(round_idx, theme_idx, question_idx) => {
+                                let mut config = config.write();
+
+                                let extension = Path::new(file_name)
+                                    .extension()
+                                    .unwrap()
+                                    .to_str()
+                                    .unwrap();
+
+                                config.rounds[round_idx].themes[theme_idx].items[question_idx]
+                                    .question_content = match extension {
+                                    "webm" => QuestionContent::Video {
+                                        video_src: format!(
+                                            "media/{}/{}/q_{}.webm",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                    },
+                                    "mp4" => QuestionContent::Video {
+                                        video_src: format!(
+                                            "media/{}/{}/q_{}.mp4",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                    },
+                                    "png" => QuestionContent::Picture {
+                                        picture_src: format!(
+                                            "media/{}/{}/q_{}.png",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                    },
+                                    "jpg" | "jpeg" => QuestionContent::Picture {
+                                        picture_src: format!(
+                                            "media/{}/{}/q_{}.jpg",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                    },
+                                    "txt" => QuestionContent::Text {
+                                        text_src: format!(
+                                            "media/{}/{}/q_{}.txt",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                    },
+                                    "mp3" => QuestionContent::Sound {
+                                        sound_src: format!(
+                                            "media/{}/{}/q_{}.mp3",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                        cover_src: None,
+                                    },
+                                    _ => panic!("Unsupported file type: {}", extension),
+                                }
+                            }
+                        }
+
                         log::info!("Loaded: {:?}", file_name);
                     }
                 }
@@ -39,7 +97,7 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
     };
 
     let load_answer_file = move |evt: Event<FormData>| {
-        to_owned!(answers);
+        to_owned!(config, answers);
 
         async move {
             if let Some(file_engine) = &evt.files {
@@ -47,6 +105,62 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                 for file_name in &files {
                     if let Some(file) = file_engine.read_file(file_name).await {
                         answers.write().insert(question, file);
+
+                        match question {
+                            Question::Final(question_idx) => todo!(),
+                            Question::Normal(round_idx, theme_idx, question_idx) => {
+                                let mut config = config.write();
+
+                                let extension = Path::new(file_name)
+                                    .extension()
+                                    .unwrap()
+                                    .to_str()
+                                    .unwrap();
+
+                                config.rounds[round_idx].themes[theme_idx].items[question_idx]
+                                    .answer_content = match extension {
+                                    "webm" => AnswerContent::Video {
+                                        video_src: format!(
+                                            "media/{}/{}/a_{}.webm",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                    },
+                                    "mp4" => AnswerContent::Video {
+                                        video_src: format!(
+                                            "media/{}/{}/a_{}.mp4",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                    },
+                                    "png" => AnswerContent::Picture {
+                                        picture_src: format!(
+                                            "media/{}/{}/a_{}.png",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                    },
+                                    "jpg" | "jpeg" => AnswerContent::Picture {
+                                        picture_src: format!(
+                                            "media/{}/{}/a_{}.jpg",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                    },
+                                    "txt" => AnswerContent::Text {
+                                        text_src: format!(
+                                            "media/{}/{}/a_{}.txt",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                    },
+                                    "mp3" => AnswerContent::Sound {
+                                        sound_src: format!(
+                                            "media/{}/{}/a_{}.mp3",
+                                            round_idx, theme_idx, question_idx
+                                        ),
+                                        cover_src: None,
+                                    },
+                                    _ => panic!("Unsupported file type: {}", extension),
+                                }
+                            }
+                        }
+
                         log::info!("Loaded: {:?}", file_name);
                     }
                 }
@@ -222,7 +336,7 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
         form { class: "package-card",
             div { class: "header",
                 div {
-                    class: "text-edit",
+                    class: "text",
                     "Question #{idx+1}"
                 }
                 div { class: "remove neutral-btn",

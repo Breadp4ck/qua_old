@@ -21,6 +21,7 @@ pub enum BoardUpdate {
     QuestionMedia(Question),
     AnswerMedia(Question),
     Picking(Round),
+    Ending,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -69,4 +70,5 @@ pub enum StateUpdate {
     QuaQueue,
     QuaAnswer,
     QuestionAnswer,
+    Ending,
 }

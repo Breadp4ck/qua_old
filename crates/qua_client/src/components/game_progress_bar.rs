@@ -24,6 +24,7 @@ pub fn game_progress_bar(cx: Scope) -> Element {
         StateUpdate::QuaQueue => ProgressState::Nothing,
         StateUpdate::QuaAnswer => ProgressState::Leak { secs: 10.0 },
         StateUpdate::QuestionAnswer => ProgressState::Nothing,
+        StateUpdate::Ending => ProgressState::Nothing,
     };
 
     match progress {
