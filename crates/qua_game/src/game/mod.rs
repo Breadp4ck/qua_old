@@ -72,6 +72,9 @@ impl Game {
             GameState::Init(_) => GameEvent::Board(BoardUpdate::Init),
             GameState::Greet(_) => GameEvent::Board(BoardUpdate::Greet),
             GameState::Overview(_) => GameEvent::Board(BoardUpdate::Overview),
+            GameState::RoundPreview(_) => {
+                GameEvent::Board(BoardUpdate::RoundPreview(self.context.round))
+            }
             GameState::Picking(_) => GameEvent::Board(BoardUpdate::Picking(self.context.round)),
             GameState::QuestionAppearance(_) => {
                 GameEvent::Board(BoardUpdate::QuestionType(self.context.question.unwrap()))
@@ -121,9 +124,9 @@ impl Game {
         let maybe_player = players.iter().max_by(|a, b| a.scores().cmp(&b.scores()));
 
         if let Some(player) = maybe_player {
-            return Some(player.clone())
+            return Some(player.clone());
         } else {
-            return None
+            return None;
         }
     }
 

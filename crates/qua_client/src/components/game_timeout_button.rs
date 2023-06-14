@@ -5,11 +5,13 @@ use crate::*;
 
 pub fn game_timeout_button(cx: Scope) -> Element {
     let state = use_shared_state::<StateUpdate>(cx).unwrap();
+    let timer = use_shared_state::<GameTimer>(cx).unwrap();
 
     let (disabled, hidden) = match &*state.read() {
         StateUpdate::Init => (false, true),
         StateUpdate::Greet => (false, false),
         StateUpdate::Overview => (false, false),
+        StateUpdate::RoundPreview => (false, false),
         StateUpdate::Picking => (true, false),
         StateUpdate::QuestionAppearance => (false, false),
         StateUpdate::QuestionMatter => (false, false),

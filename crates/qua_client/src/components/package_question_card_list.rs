@@ -17,15 +17,17 @@ pub fn package_question_card_list(cx: Scope) -> Element {
                     cx.spawn({
                         async move {
                             let mut config = config.write();
-                            config.rounds[round_idx].themes[theme_idx].items.push(ItemData {
-                                cost: 100,
-                                title: "".into(),
-                                answer: "".into(),
-                                question_content: QuestionContent::Empty,
-                                question_description: None,
-                                answer_content: AnswerContent::Empty,
-                                answer_description: None,
-                            });
+                            config.rounds[round_idx].themes[theme_idx]
+                                .items
+                                .push(ItemData {
+                                    cost: 100,
+                                    title: "".into(),
+                                    answer: "".into(),
+                                    question_content: QuestionContent::Empty,
+                                    question_description: None,
+                                    answer_content: AnswerContent::Empty,
+                                    answer_description: None,
+                                });
                         }
                     });
                 };
@@ -38,12 +40,11 @@ pub fn package_question_card_list(cx: Scope) -> Element {
                         div { onclick: add_question, class: "neutral-btn package-add-card", "Add Question" }
                     }
                 })
-            },
+            }
         }
     } else {
         cx.render(rsx! {
             div { class: "package-card-list",
-                "EMPYT"
             }
         })
     }

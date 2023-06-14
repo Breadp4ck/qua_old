@@ -54,7 +54,15 @@ pub fn game_player_card(cx: Scope<GamePlayerCardProps>) -> Element {
                 div { class: "scores", "{cx.props.scores}" }
             }
             if cx.props.lead {
-                rsx! { div { class: "lead" } }
+                rsx! {
+                div { class: "lead",
+                    span { img {
+                        // class: "menu-card-icon",
+                        src: "/assets/icons/flag-outline.svg",
+                        alt: "LEAD"
+                    } }
+                }
+            }
             } else if let PersonType::Host = person_type {
                 rsx! { div { onclick: change_lead, class: "lead-placeholder" } }
             }

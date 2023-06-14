@@ -32,7 +32,7 @@ pub fn home(cx: Scope) -> Element {
             }
             div {
                 class: "menu-footer",
-                "Developed by Begichev Alexander"
+                "qua! by Begichev Alexander"
             }
         }
     })

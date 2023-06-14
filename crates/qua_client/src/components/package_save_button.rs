@@ -17,7 +17,7 @@ pub fn package_save_button(cx: Scope) -> Element {
             onclick: move |_| {
                 to_owned!(config, questions, answers);
 
-                let data = PackageResource::export(&*config.read(), &*questions.read(), &*answers.read());
+                let data = PackageResource::export(&*config.read(), &questions.read().0, &answers.read().0);
                 let uint8arr = unsafe { js_sys::Uint8Array::view(&data) };
                 let array = js_sys::Array::new();
                 array.push(&uint8arr);

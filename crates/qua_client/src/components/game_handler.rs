@@ -26,7 +26,7 @@ async fn ws(
     timer: UseSharedState<GameTimer>,
     qua_time: UseSharedState<QuaWaitingTime>,
 ) {
-    let mut interval = Interval::platform_new(Duration::from_millis(200));
+    let mut interval = Interval::platform_new(Duration::from_millis(100));
     if !synced {
         let wanna_send =
             serde_json::to_string(&ClientMessage::SyncRequest).expect("Failed to serialize");
@@ -92,7 +92,8 @@ async fn ws(
                                 *time = match update {
                                     StateUpdate::Init => GameTimer(None),
                                     StateUpdate::Greet => GameTimer(Some(Duration::from_secs(2))),
-                                    StateUpdate::Overview => GameTimer(Some(Duration::from_secs(2))),
+                                    StateUpdate::Overview => GameTimer(Some(Duration::from_secs(3))),
+                                    StateUpdate::RoundPreview => GameTimer(Some(Duration::from_secs(3))),
                                     StateUpdate::Picking => GameTimer(None),
                                     StateUpdate::QuestionAppearance => GameTimer(Some(Duration::from_secs(1))),
                                     StateUpdate::QuestionMatter => GameTimer(Some(Duration::from_secs(2))),

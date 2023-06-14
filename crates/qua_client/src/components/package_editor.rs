@@ -7,14 +7,14 @@ use qua_game::prelude::{Theme, Question};
 use qua_package::package_config::*;
 
 pub type SelectedTheme = Option<Theme>;
-pub type QuestionsData = HashMap<Question, Vec<u8>>;
-pub type AnswersData = HashMap<Question, Vec<u8>>;
+pub struct QuestionsData(pub HashMap<Question, Vec<u8>>);
+pub struct AnswersData(pub HashMap<Question, Vec<u8>>);
 
 pub fn package_editor(cx: Scope) -> Element {
     use_shared_state_provider::<PackageConfig>(cx, || PackageConfig::default());
     use_shared_state_provider::<SelectedTheme>(cx, || None);
-    use_shared_state_provider::<QuestionsData>(cx, || HashMap::new());
-    use_shared_state_provider::<AnswersData>(cx, || HashMap::new());
+    use_shared_state_provider::<QuestionsData>(cx, || QuestionsData(HashMap::new()));
+    use_shared_state_provider::<AnswersData>(cx, || AnswersData(HashMap::new()));
 
     cx.render(rsx! {
         div{

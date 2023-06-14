@@ -1,5 +1,5 @@
 use crate::{
-    contexts::package_resource::{PackageResourceItem, ResourceUrlContent},
+    contexts::package_resource::{PackageResourceItem, ResourceContent},
     *,
 };
 use dioxus::prelude::*;

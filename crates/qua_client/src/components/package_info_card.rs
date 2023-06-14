@@ -30,6 +30,18 @@ pub fn package_info_card(cx: Scope) -> Element {
         });
     };
 
+    let name = if let Some(name) = config.read().info.name.clone() {
+        name
+    } else {
+        "".into()
+    };
+
+    let author = if let Some(author) = config.read().info.author.clone() {
+        author
+    } else {
+        "".into()
+    };
+
     cx.render(rsx! {
         div { class: "package-card-list",
             form { class: "package-card",
@@ -53,6 +65,7 @@ pub fn package_info_card(cx: Scope) -> Element {
                             class: "text-edit",
                             r#type: "text",
                             placeholder: "Write package title",
+                            value: "{name}"
                         }
                     }
                     div {
@@ -67,6 +80,7 @@ pub fn package_info_card(cx: Scope) -> Element {
                             class: "text-edit",
                             r#type: "text",
                             placeholder: "Write your name",
+                            value: "{author}"
                         }
                     }
                 }

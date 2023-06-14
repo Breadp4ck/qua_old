@@ -14,6 +14,7 @@ pub fn game_answer_button(cx: Scope) -> Element {
         StateUpdate::Init => (true, false),
         StateUpdate::Greet => (true, false),
         StateUpdate::Overview => (true, false),
+        StateUpdate::RoundPreview => (true, false),
         StateUpdate::Picking => (true, false),
         StateUpdate::QuestionAppearance => (true, false),
         StateUpdate::QuestionMatter => (true, false),

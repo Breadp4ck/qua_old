@@ -23,10 +23,10 @@ impl GameStateInteraction for QuestionAnswerGameState {
                         if let Round::Normal(idx) = &mut context.round {
                             *idx += 1;
                         }
-                        context.events.push(GameEvent::Board(BoardUpdate::Picking(
+                        context.events.push(GameEvent::Board(BoardUpdate::RoundPreview(
                             context.round.clone(),
                         )));
-                        Some(GameState::Picking(PickingGameState::default()))
+                        Some(GameState::RoundPreview(RoundPreviewGameState::default()))
                     }
                 } else {
                     context.events.push(GameEvent::Board(BoardUpdate::Picking(

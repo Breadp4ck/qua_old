@@ -28,7 +28,7 @@ pub fn nav(cx: Scope) -> Element {
             // Link { to: "/preferenes", class: "to-left", img { class: "nav-btn-icon", src: "assets/icons/settings-outline.svg", alt: "P" } }
             Link { to: "/menu", class: "to-left", img { class: "nav-btn-icon", src: "assets/icons/home-outline.svg", alt: "P" } }
             // Right side of the navbar
-            Link { to: "/notifications", class: "to-right", img { class: "nav-btn-icon", src: "assets/icons/info-outline.svg", alt: "P" } }
+            // Link { to: "/notifications", class: "to-right", img { class: "nav-btn-icon", src: "assets/icons/info-outline.svg", alt: "P" } }
 
             if let Some(room_code) = room_code {
                 rsx!(

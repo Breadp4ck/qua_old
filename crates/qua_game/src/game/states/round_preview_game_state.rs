@@ -1,9 +1,9 @@
 use super::*;
 
 #[derive(Default, Clone, Serialize, Deserialize)]
-pub struct OverviewGameState;
+pub struct RoundPreviewGameState;
 
-impl GameStateInteraction for OverviewGameState {
+impl GameStateInteraction for RoundPreviewGameState {
     fn handle_event(
         &mut self,
         context: &mut GameContext,
@@ -15,13 +15,14 @@ impl GameStateInteraction for OverviewGameState {
         let person = persons.get(author).unwrap();
         match (event, person) {
             (InputEvent::Timeout, Person::Host(_)) => {
-                context.events.push(GameEvent::Board(BoardUpdate::RoundPreview(
+                context.events.push(GameEvent::Board(BoardUpdate::Picking(
                     context.round.clone(),
                 )));
 
-                Some(GameState::RoundPreview(RoundPreviewGameState::default()))
+                Some(GameState::Picking(PickingGameState::default()))
             }
             _ => None,
         }
     }
 }
+

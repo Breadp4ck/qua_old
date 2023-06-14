@@ -32,7 +32,7 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                 let files = file_engine.files();
                 for file_name in &files {
                     if let Some(file) = file_engine.read_file(file_name).await {
-                        questions.write().insert(question, file);
+                        questions.write().0.insert(question, file);
 
                         match question {
                             Question::Final(question_idx) => todo!(),
@@ -71,12 +71,12 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                                             round_idx, theme_idx, question_idx
                                         ),
                                     },
-                                    "txt" => QuestionContent::Text {
-                                        text_src: format!(
-                                            "media/{}/{}/q_{}.txt",
-                                            round_idx, theme_idx, question_idx
-                                        ),
-                                    },
+                                    // "txt" => QuestionContent::Text {
+                                    //     text_src: format!(
+                                    //         "media/{}/{}/q_{}.txt",
+                                    //         round_idx, theme_idx, question_idx
+                                    //     ),
+                                    // },
                                     "mp3" => QuestionContent::Sound {
                                         sound_src: format!(
                                             "media/{}/{}/q_{}.mp3",
@@ -104,7 +104,7 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                 let files = file_engine.files();
                 for file_name in &files {
                     if let Some(file) = file_engine.read_file(file_name).await {
-                        answers.write().insert(question, file);
+                        answers.write().0.insert(question, file);
 
                         match question {
                             Question::Final(question_idx) => todo!(),
@@ -143,12 +143,12 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                                             round_idx, theme_idx, question_idx
                                         ),
                                     },
-                                    "txt" => AnswerContent::Text {
-                                        text_src: format!(
-                                            "media/{}/{}/a_{}.txt",
-                                            round_idx, theme_idx, question_idx
-                                        ),
-                                    },
+                                    // "txt" => AnswerContent::Text {
+                                    //     text_src: format!(
+                                    //         "media/{}/{}/a_{}.txt",
+                                    //         round_idx, theme_idx, question_idx
+                                    //     ),
+                                    // },
                                     "mp3" => AnswerContent::Sound {
                                         sound_src: format!(
                                             "media/{}/{}/a_{}.mp3",
@@ -181,7 +181,7 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                             "text" => {
                                 config.rounds[round_idx].themes[theme_idx].items[question_idx]
                                     .question_content = QuestionContent::Text {
-                                    text_src: "".into(),
+                                    text: "".into(),
                                 }
                             }
                             "picture" => {
@@ -228,7 +228,7 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                             "text" => {
                                 config.rounds[round_idx].themes[theme_idx].items[question_idx]
                                     .answer_content = AnswerContent::Text {
-                                    text_src: "".into(),
+                                    text: "".into(),
                                 }
                             }
                             "picture" => {
@@ -314,6 +314,40 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
         });
     };
 
+    let change_question_content_text = move |text: String| {
+        to_owned!(config);
+
+        cx.spawn({
+            async move {
+                let mut config = config.write();
+                match question {
+                    Question::Final(question_idx) => todo!(),
+                    Question::Normal(round_idx, theme_idx, question_idx) => {
+                        config.rounds[round_idx].themes[theme_idx].items[question_idx].question_content =
+                            QuestionContent::Text { text };
+                    }
+                }
+            }
+        });
+    };
+
+    let change_answer_content_text = move |text: String| {
+        to_owned!(config);
+
+        cx.spawn({
+            async move {
+                let mut config = config.write();
+                match question {
+                    Question::Final(question_idx) => todo!(),
+                    Question::Normal(round_idx, theme_idx, question_idx) => {
+                        config.rounds[round_idx].themes[theme_idx].items[question_idx].answer_content =
+                            AnswerContent::Text { text };
+                    }
+                }
+            }
+        });
+    };
+
     let remove_question = move |_| {
         to_owned!(config);
 
@@ -381,7 +415,7 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                 div {
                     class: "row",
                     div {
-                        "answer:"
+                        "short answer:"
                     }
                     input {
                         onchange: move |event| {
@@ -396,39 +430,42 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                 div {
                     class: "row",
                     div {
-                        "full question:"
-                    }
-                    select {
-                        class: "text-edit",
-                        onchange: move |event| {
-                            change_question_content(&event.value)
-                        },
-                        option {
-                            value: "empty",
-                            "--"
-                        }
-                        option {
-                            value: "text",
-                            "Text"
-                        }
-                        option {
-                            value: "picture",
-                            "Picture"
-                        }
-                        option {
-                            value: "sound",
-                            "Sound"
-                        }
-                        option {
-                            value: "video",
-                            "Video"
+                        "question:",
+                        select {
+                            class: "text-edit",
+                            onchange: move |event| {
+                                change_question_content(&event.value)
+                            },
+                            option {
+                                value: "empty",
+                                "--"
+                            }
+                            option {
+                                value: "text",
+                                "Text"
+                            }
+                            option {
+                                value: "picture",
+                                "Picture"
+                            }
+                            option {
+                                value: "sound",
+                                "Sound"
+                            }
+                            option {
+                                value: "video",
+                                "Video"
+                            }
                         }
                     }
                     match item.question_content {
-                        QuestionContent::Text { text_src } => rsx!{
+                        QuestionContent::Text { text } => rsx!{
                             input {
-                                onchange: load_question_file,
-                                r#type: "file",
+                                onchange: move |event| {
+                                    change_question_content_text(event.value.clone())
+                                },
+                                placeholder: "Write full question text",
+                                r#type: "text",
                             }
                         },
                         QuestionContent::Picture { picture_src } => rsx! {
@@ -455,39 +492,42 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                 div {
                     class: "row",
                     div {
-                        "full answer:"
-                    }
-                    select {
-                        class: "text-edit",
-                        onchange: move |event| {
-                            change_answer_content(&event.value)
-                        },
-                        option {
-                            value: "empty",
-                            "--"
-                        }
-                        option {
-                            value: "text",
-                            "Text"
-                        }
-                        option {
-                            value: "picture",
-                            "Picture"
-                        }
-                        option {
-                            value: "sound",
-                            "Sound"
-                        }
-                        option {
-                            value: "video",
-                            "Video"
+                        "answer:",
+                        select {
+                            class: "text-edit",
+                            onchange: move |event| {
+                                change_answer_content(&event.value)
+                            },
+                            option {
+                                value: "empty",
+                                "--"
+                            }
+                            option {
+                                value: "text",
+                                "Text"
+                            }
+                            option {
+                                value: "picture",
+                                "Picture"
+                            }
+                            option {
+                                value: "sound",
+                                "Sound"
+                            }
+                            option {
+                                value: "video",
+                                "Video"
+                            }
                         }
                     }
                     match item.answer_content {
-                        AnswerContent::Text { text_src } => rsx!{
+                        AnswerContent::Text { text } => rsx!{
                             input {
-                                onchange: load_answer_file,
-                                r#type: "file",
+                                onchange: move |event| {
+                                    change_answer_content_text(event.value.clone())
+                                },
+                                placeholder: "Write full answer text",
+                                r#type: "text",
                             }
                         },
                         AnswerContent::Picture { picture_src } => rsx! {

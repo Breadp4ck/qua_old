@@ -13,7 +13,8 @@ pub fn game_board(cx: Scope) -> Element {
     let board = match &*board {
         BoardUpdate::Init => rsx! { div { class: "message", "Waiting for players" } },
         BoardUpdate::Greet => rsx! { div { class: "message", "qua!" } },
-        BoardUpdate::Overview => rsx! { div { class: "message", "PACKAGE_THEMES_PLACEHOLDER" } },
+        BoardUpdate::Overview => rsx! { game_overview { } },
+        BoardUpdate::RoundPreview(round) => rsx! { game_round_preview { round: round.clone() } },
         BoardUpdate::QuestionType(question) => rsx! { div { class: "message", "Внимание, вопрос!" } },
         BoardUpdate::QuestionMatter(question) => {
             rsx! { game_question_matter { question: question.clone() } }

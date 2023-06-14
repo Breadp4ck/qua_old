@@ -15,6 +15,7 @@ mod question_matter_game_state;
 mod question_qua_answering_game_state;
 mod question_qua_queue_game_state;
 mod question_qua_waiting_game_state;
+mod round_preview_game_state;
 
 pub use ending_game_state::*;
 pub use greet_game_state::*;
@@ -28,6 +29,7 @@ pub use question_matter_game_state::*;
 pub use question_qua_answering_game_state::*;
 pub use question_qua_queue_game_state::*;
 pub use question_qua_waiting_game_state::*;
+pub use round_preview_game_state::*;
 
 type Persons = HashMap<PersonName, Person>;
 
@@ -47,6 +49,7 @@ pub enum GameState {
     Init(InitGameState),
     Greet(GreetGameState),
     Overview(OverviewGameState),
+    RoundPreview(RoundPreviewGameState),
     Picking(PickingGameState),
     QuestionAppearance(QuestionAppearanceGameState),
     QuestionMatter(QuestionMatterGameState),
@@ -64,6 +67,7 @@ impl GameState {
             GameState::Init(_) => context.events.push(GameEvent::State(StateUpdate::Init)),
             GameState::Greet(_) => context.events.push(GameEvent::State(StateUpdate::Greet)),
             GameState::Overview(_) => context.events.push(GameEvent::State(StateUpdate::Overview)),
+            GameState::RoundPreview(_) => context.events.push(GameEvent::State(StateUpdate::RoundPreview)),
             GameState::Picking(_) => context.events.push(GameEvent::State(StateUpdate::Picking)),
             GameState::QuestionAppearance(_) => context
                 .events
@@ -102,6 +106,9 @@ impl GameState {
             GameState::Init(state) => state.handle_event(context, event, author, persons, package),
             GameState::Greet(state) => state.handle_event(context, event, author, persons, package),
             GameState::Overview(state) => {
+                state.handle_event(context, event, author, persons, package)
+            }
+            GameState::RoundPreview(state) => {
                 state.handle_event(context, event, author, persons, package)
             }
             GameState::Picking(state) => {

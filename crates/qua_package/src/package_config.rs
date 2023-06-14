@@ -43,7 +43,7 @@ pub struct ItemData {
 #[serde(tag = "question_content_type")]
 pub enum QuestionContent {
     Text {
-        text_src: String,
+        text: String,
     },
     Picture {
         picture_src: String,
@@ -62,7 +62,7 @@ pub enum QuestionContent {
 #[serde(tag = "answer_content_type")]
 pub enum AnswerContent {
     Text {
-        text_src: String,
+        text: String,
     },
     Picture {
         picture_src: String,

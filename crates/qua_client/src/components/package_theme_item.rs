@@ -72,7 +72,7 @@ pub fn package_theme_item(cx: Scope<PackageThemeItemProps>) -> Element {
     };
 
     let selected_style = if selected {
-        "color:yellow;"
+        "color:greenyellow;"
     } else {
         ""
     };

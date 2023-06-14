@@ -1,5 +1,5 @@
 use crate::{
-    contexts::package_resource::{PackageResourceItem, ResourceUrlContent},
+    contexts::package_resource::{PackageResourceItem, ResourceContent},
     *,
 };
 use dioxus::prelude::*;
@@ -43,28 +43,35 @@ pub fn game_media_content(cx: Scope<GameMediaContentProps>) -> Element {
 
     if let Some(item) = &*resource_item.read() {
         match (person_type, media_source) {
-            (PersonType::Host, _) => set_info(format!("Answer: {}", item.answer).into()),
+            (PersonType::Host, _) => set_info(format!("Answer: {} | Question: {}", item.answer, item.title).into()),
             (_, MediaSource::Answer) => set_info(format!("Answer: {}", item.answer).into()),
             _ => (),
         }
 
-        let (general, url) = match cx.props.media_source {
+        let (general, resource_content) = match cx.props.media_source {
             MediaSource::Answer => (item.answer.clone(), item.answer_url_content.clone()),
             MediaSource::Question => (item.title.clone(), item.question_url_content.clone()),
         };
 
-        match url {
-            ResourceUrlContent::Text { url } => cx.render(rsx! { div { "{url}" } }),
-            ResourceUrlContent::Picture { url } => cx.render(rsx! {
+        match resource_content {
+            ResourceContent::Text { text } => cx.render(rsx! { div { class: "message", "{text}" } }),
+            ResourceContent::Picture { url } => cx.render(rsx! {
                 div { class: "media-content", img { src: "{url}" } }
             }),
-            ResourceUrlContent::Video { url } => cx.render(rsx! {
+            ResourceContent::Video { url } => cx.render(rsx! {
                 div { class: "media-content", video { src: "{url}", autoplay: "true" } }
             }),
-            ResourceUrlContent::Sound { url } => cx.render(rsx! {
-                div { audio { src: "{url}", autoplay: "true" } }
+            ResourceContent::Sound { url } => cx.render(rsx! {
+                div {
+                    class: "audio",
+                    audio { src: "{url}", autoplay: "true" },
+                    img {
+                        src: "/assets/icons/music-outline.svg",
+                        alt: "MUSIC"
+                    }
+                }
             }),
-            ResourceUrlContent::Empty => cx.render(rsx! { div { class: "message", "{general}" } }),
+            ResourceContent::Empty => cx.render(rsx! { div { class: "message", "{general}" } }),
         }
     } else {
         cx.render(rsx! { div { "..." } })

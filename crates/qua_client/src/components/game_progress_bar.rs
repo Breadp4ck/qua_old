@@ -16,6 +16,7 @@ pub fn game_progress_bar(cx: Scope) -> Element {
         StateUpdate::Init => ProgressState::Nothing,
         StateUpdate::Greet => ProgressState::Nothing,
         StateUpdate::Overview => ProgressState::Nothing,
+        StateUpdate::RoundPreview => ProgressState::Nothing,
         StateUpdate::Picking => ProgressState::Nothing,
         StateUpdate::QuestionAppearance => ProgressState::Nothing,
         StateUpdate::QuestionMatter => ProgressState::Nothing,

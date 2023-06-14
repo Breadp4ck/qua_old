@@ -1,5 +1,9 @@
-use qua_game::{game::Question, prelude::Theme, scores::Scores};
-use qua_package::package_config::{AnswerContent, ItemData, PackageConfig, QuestionContent};
+use qua_game::{
+    game::Question,
+    prelude::{Round, Theme},
+    scores::Scores,
+};
+use qua_package::package_config::{AnswerContent, Info, ItemData, PackageConfig, QuestionContent};
 use std::{
     collections::HashMap,
     io::{Cursor, Read, Write},
@@ -8,21 +12,21 @@ use std::{
 use web_sys::*;
 use zip::{read::ZipFile, ZipWriter};
 
-use crate::components::prelude::{QuestionsData, AnswersData};
+use crate::components::prelude::{AnswersData, QuestionsData};
 
 pub struct PackageResourceItem {
     pub title: String,
     pub answer: String,
     pub cost: Scores,
-    pub question_url_content: ResourceUrlContent,
+    pub question_url_content: ResourceContent,
     pub question_description: Option<String>,
-    pub answer_url_content: ResourceUrlContent,
+    pub answer_url_content: ResourceContent,
     pub answer_description: Option<String>,
 }
 
 #[derive(Clone)]
-pub enum ResourceUrlContent {
-    Text { url: String },
+pub enum ResourceContent {
+    Text { text: String },
     Picture { url: String },
     Video { url: String },
     Sound { url: String },
@@ -31,7 +35,7 @@ pub enum ResourceUrlContent {
 
 pub struct PackageResource {
     config: PackageConfig,
-    urls: HashMap<Question, (ResourceUrlContent, ResourceUrlContent)>,
+    urls: HashMap<Question, (ResourceContent, ResourceContent)>,
 }
 
 impl PackageResource {
@@ -47,21 +51,19 @@ impl PackageResource {
             panic!("Could not find Pack.toml") // TODO: error: Pack.toml not found
         };
 
-        let mut urls: HashMap<Question, (ResourceUrlContent, ResourceUrlContent)> = HashMap::new();
+        let mut urls: HashMap<Question, (ResourceContent, ResourceContent)> = HashMap::new();
 
         for (round_idx, round) in config.rounds.iter().enumerate() {
             for (theme_idx, theme) in round.themes.iter().enumerate() {
                 for (item_idx, item) in theme.items.iter().enumerate() {
                     let question_url_content = match &item.question_content {
-                        QuestionContent::Text { text_src } => {
-                            let file = zip.by_name(&text_src).unwrap();
-                            let url = Self::create_url(file);
-                            ResourceUrlContent::Text { url }
+                        QuestionContent::Text { text } => {
+                            ResourceContent::Text { text: text.clone() }
                         }
                         QuestionContent::Picture { picture_src } => {
                             let file = zip.by_name(&picture_src).unwrap();
                             let url = Self::create_url(file);
-                            ResourceUrlContent::Picture { url }
+                            ResourceContent::Picture { url }
                         }
                         QuestionContent::Sound {
                             sound_src,
@@ -69,26 +71,24 @@ impl PackageResource {
                         } => {
                             let file = zip.by_name(&sound_src).unwrap();
                             let url = Self::create_url(file);
-                            ResourceUrlContent::Sound { url }
+                            ResourceContent::Sound { url }
                         }
                         QuestionContent::Video { video_src } => {
                             let file = zip.by_name(&video_src).unwrap();
                             let url = Self::create_url(file);
-                            ResourceUrlContent::Video { url }
+                            ResourceContent::Video { url }
                         }
-                        QuestionContent::Empty => ResourceUrlContent::Empty,
+                        QuestionContent::Empty => ResourceContent::Empty,
                     };
 
                     let answer_url_content = match &item.answer_content {
-                        AnswerContent::Text { text_src } => {
-                            let file = zip.by_name(&text_src).unwrap();
-                            let url = Self::create_url(file);
-                            ResourceUrlContent::Text { url }
+                        AnswerContent::Text { text } => {
+                            ResourceContent::Text { text: text.clone() }
                         }
                         AnswerContent::Picture { picture_src } => {
                             let file = zip.by_name(&picture_src).unwrap();
                             let url = Self::create_url(file);
-                            ResourceUrlContent::Picture { url }
+                            ResourceContent::Picture { url }
                         }
                         AnswerContent::Sound {
                             sound_src,
@@ -96,14 +96,14 @@ impl PackageResource {
                         } => {
                             let file = zip.by_name(&sound_src).unwrap();
                             let url = Self::create_url(file);
-                            ResourceUrlContent::Sound { url }
+                            ResourceContent::Sound { url }
                         }
                         AnswerContent::Video { video_src } => {
                             let file = zip.by_name(&video_src).unwrap();
                             let url = Self::create_url(file);
-                            ResourceUrlContent::Video { url }
+                            ResourceContent::Video { url }
                         }
-                        AnswerContent::Empty => ResourceUrlContent::Empty,
+                        AnswerContent::Empty => ResourceContent::Empty,
                     };
 
                     let index = Question::Normal(round_idx, theme_idx, item_idx);
@@ -113,6 +113,95 @@ impl PackageResource {
         }
 
         Self { config, urls }
+    }
+
+    pub fn new_as_parts(
+        binary_data: &[u8],
+    ) -> (
+        PackageConfig,
+        HashMap<Question, Vec<u8>>,
+        HashMap<Question, Vec<u8>>,
+    ) {
+        let mut questions: HashMap<Question, Vec<u8>> = HashMap::new();
+        let mut answers: HashMap<Question, Vec<u8>> = HashMap::new();
+        let mut zip = zip::ZipArchive::new(Cursor::new(binary_data)).unwrap();
+
+        let config = if let Ok(mut config) = zip.by_name("Pack.toml") {
+            let mut config_string = String::new();
+            config.read_to_string(&mut config_string).unwrap();
+
+            PackageConfig::from_toml(&config_string) // TODO: result
+        } else {
+            panic!("Could not find Pack.toml") // TODO: error: Pack.toml not found
+        };
+
+        let mut urls: HashMap<Question, (ResourceContent, ResourceContent)> = HashMap::new();
+
+        for (round_idx, round) in config.rounds.iter().enumerate() {
+            for (theme_idx, theme) in round.themes.iter().enumerate() {
+                for (question_idx, item) in theme.items.iter().enumerate() {
+                    match &item.question_content {
+                        QuestionContent::Text { text } => (),
+                        QuestionContent::Picture { picture_src } => {
+                            let mut file = zip.by_name(&picture_src).unwrap();
+                            let mut data = vec![];
+                            file.read_to_end(&mut data).unwrap();
+
+                            questions.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                        }
+                        QuestionContent::Sound {
+                            sound_src,
+                            cover_src,
+                        } => {
+                            let mut file = zip.by_name(&sound_src).unwrap();
+                            let mut data = vec![];
+                            file.read_to_end(&mut data).unwrap();
+
+                            questions.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                        }
+                        QuestionContent::Video { video_src } => {
+                            let mut file = zip.by_name(&video_src).unwrap();
+                            let mut data = vec![];
+                            file.read_to_end(&mut data).unwrap();
+
+                            questions.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                        }
+                        QuestionContent::Empty => (),
+                    };
+
+                    match &item.answer_content {
+                        AnswerContent::Text { text } => (),
+                        AnswerContent::Picture { picture_src } => {
+                            let mut file = zip.by_name(&picture_src).unwrap();
+                            let mut data = vec![];
+                            file.read_to_end(&mut data).unwrap();
+
+                            answers.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                        }
+                        AnswerContent::Sound {
+                            sound_src,
+                            cover_src,
+                        } => {
+                            let mut file = zip.by_name(&sound_src).unwrap();
+                            let mut data = vec![];
+                            file.read_to_end(&mut data).unwrap();
+
+                            answers.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                        }
+                        AnswerContent::Video { video_src } => {
+                            let mut file = zip.by_name(&video_src).unwrap();
+                            let mut data = vec![];
+                            file.read_to_end(&mut data).unwrap();
+
+                            answers.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                        }
+                        AnswerContent::Empty => (),
+                    };
+                }
+            }
+        }
+
+        (config, questions, answers)
     }
 
     fn create_url(mut file: ZipFile) -> String {
@@ -157,6 +246,19 @@ impl PackageResource {
         Url::create_object_url_with_blob(&blob).unwrap()
     }
 
+    pub fn get_info(&self) -> Info {
+        self.config.info.clone()
+    }
+
+    pub fn get_round(&self, round: Round) -> String {
+        match round {
+            Round::Normal(round_idx) => self.config.rounds[round_idx].name.clone(),
+            Round::Final => {
+                todo!()
+            }
+        }
+    }
+
     pub fn get_theme(&self, theme: Theme) -> String {
         match theme {
             Theme::Normal(round_idx, theme_idx) => {
@@ -196,7 +298,11 @@ impl PackageResource {
         }
     }
 
-    pub fn export(config: &PackageConfig, questions: &QuestionsData, answers: &AnswersData) -> Vec<u8> {
+    pub fn export(
+        config: &PackageConfig,
+        questions: &HashMap<Question, Vec<u8>>,
+        answers: &HashMap<Question, Vec<u8>>,
+    ) -> Vec<u8> {
         let mut output: Vec<u8> = Vec::new();
 
         {
@@ -214,22 +320,36 @@ impl PackageResource {
 
                     for (question_idx, item) in theme.items.iter().enumerate() {
                         match &item.question_content {
-                            QuestionContent::Text { text_src } => {
-                                zip.start_file(&*text_src, options);
-                                zip.write(questions.get(&Question::Normal(round_idx, theme_idx, question_idx)).unwrap()).unwrap();
-                            }
+                            QuestionContent::Text { text } => {}
                             QuestionContent::Picture { picture_src } => {
                                 zip.start_file(&*picture_src, options);
-                                zip.write(questions.get(&Question::Normal(round_idx, theme_idx, question_idx)).unwrap()).unwrap();
-
-                            },
-                            QuestionContent::Sound { sound_src, cover_src } => {
+                                zip.write(
+                                    questions
+                                        .get(&Question::Normal(round_idx, theme_idx, question_idx))
+                                        .unwrap(),
+                                )
+                                .unwrap();
+                            }
+                            QuestionContent::Sound {
+                                sound_src,
+                                cover_src,
+                            } => {
                                 zip.start_file(&*sound_src, options);
-                                zip.write(questions.get(&Question::Normal(round_idx, theme_idx, question_idx)).unwrap()).unwrap();
+                                zip.write(
+                                    questions
+                                        .get(&Question::Normal(round_idx, theme_idx, question_idx))
+                                        .unwrap(),
+                                )
+                                .unwrap();
                             }
                             QuestionContent::Video { video_src } => {
                                 zip.start_file(&*video_src, options);
-                                zip.write(questions.get(&Question::Normal(round_idx, theme_idx, question_idx)).unwrap()).unwrap();
+                                zip.write(
+                                    questions
+                                        .get(&Question::Normal(round_idx, theme_idx, question_idx))
+                                        .unwrap(),
+                                )
+                                .unwrap();
                             }
                             QuestionContent::Empty => (),
                         }
