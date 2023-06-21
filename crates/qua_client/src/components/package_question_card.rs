@@ -71,12 +71,6 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                                             round_idx, theme_idx, question_idx
                                         ),
                                     },
-                                    // "txt" => QuestionContent::Text {
-                                    //     text_src: format!(
-                                    //         "media/{}/{}/q_{}.txt",
-                                    //         round_idx, theme_idx, question_idx
-                                    //     ),
-                                    // },
                                     "mp3" => QuestionContent::Sound {
                                         sound_src: format!(
                                             "media/{}/{}/q_{}.mp3",
@@ -143,12 +137,6 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                                             round_idx, theme_idx, question_idx
                                         ),
                                     },
-                                    // "txt" => AnswerContent::Text {
-                                    //     text_src: format!(
-                                    //         "media/{}/{}/a_{}.txt",
-                                    //         round_idx, theme_idx, question_idx
-                                    //     ),
-                                    // },
                                     "mp3" => AnswerContent::Sound {
                                         sound_src: format!(
                                             "media/{}/{}/a_{}.mp3",
@@ -436,25 +424,30 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                             onchange: move |event| {
                                 change_question_content(&event.value)
                             },
-                            option {
-                                value: "empty",
-                                "--"
+                            if let QuestionContent::Empty = item.question_content {
+                                rsx! { option { selected: true, value: "empty", "--" } }
+                            } else {
+                                rsx! { option { value: "empty", "--" } }
                             }
-                            option {
-                                value: "text",
-                                "Text"
+                            if let QuestionContent::Text { .. } = item.question_content {
+                                rsx! { option { selected: true, value: "text", "Text" } }
+                            } else {
+                                rsx! { option { value: "text", "Text" } }
                             }
-                            option {
-                                value: "picture",
-                                "Picture"
+                            if let QuestionContent::Picture { .. } = item.question_content {
+                                rsx! { option { selected: true, value: "picture", "Picture" } }
+                            } else {
+                                rsx! { option { value: "picture", "Picture" } }
                             }
-                            option {
-                                value: "sound",
-                                "Sound"
+                            if let QuestionContent::Sound { .. } = item.question_content {
+                                rsx! { option { selected: true, value: "sound", "Sound" } }
+                            } else {
+                                rsx! { option { value: "sound", "Sound" } }
                             }
-                            option {
-                                value: "video",
-                                "Video"
+                            if let QuestionContent::Video { .. } = item.question_content {
+                                rsx! { option { selected: true, value: "video", "Video" } }
+                            } else {
+                                rsx! { option { value: "video", "Video" } }
                             }
                         }
                     }
@@ -466,6 +459,7 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                                 },
                                 placeholder: "Write full question text",
                                 r#type: "text",
+                                value: "{text}"
                             }
                         },
                         QuestionContent::Picture { picture_src } => rsx! {
@@ -498,25 +492,30 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                             onchange: move |event| {
                                 change_answer_content(&event.value)
                             },
-                            option {
-                                value: "empty",
-                                "--"
+                            if let AnswerContent::Empty = item.answer_content {
+                                rsx! { option { selected: true, value: "empty", "--" } }
+                            } else {
+                                rsx! { option { value: "empty", "--" } }
                             }
-                            option {
-                                value: "text",
-                                "Text"
+                            if let AnswerContent::Text { .. } = item.answer_content {
+                                rsx! { option { selected: true, value: "text", "Text" } }
+                            } else {
+                                rsx! { option { value: "text", "Text" } }
                             }
-                            option {
-                                value: "picture",
-                                "Picture"
+                            if let AnswerContent::Picture { .. } = item.answer_content {
+                                rsx! { option { selected: true, value: "picture", "Picture" } }
+                            } else {
+                                rsx! { option { value: "picture", "Picture" } }
                             }
-                            option {
-                                value: "sound",
-                                "Sound"
+                            if let AnswerContent::Sound { .. } = item.answer_content {
+                                rsx! { option { selected: true, value: "sound", "Sound" } }
+                            } else {
+                                rsx! { option { value: "sound", "Sound" } }
                             }
-                            option {
-                                value: "video",
-                                "Video"
+                            if let AnswerContent::Video { .. } = item.answer_content {
+                                rsx! { option { selected: true, value: "video", "Video" } }
+                            } else {
+                                rsx! { option { value: "video", "Video" } }
                             }
                         }
                     }
@@ -528,12 +527,14 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                                 },
                                 placeholder: "Write full answer text",
                                 r#type: "text",
+                                value: "{text}"
                             }
                         },
                         AnswerContent::Picture { picture_src } => rsx! {
                             input {
                                 onchange: load_answer_file,
                                 r#type: "file",
+                                value: "{picture_src.clone()}"
                             }
                         },
                         AnswerContent::Sound { sound_src, cover_src } => rsx! {

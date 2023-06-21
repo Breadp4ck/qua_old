@@ -291,7 +291,7 @@ nav .impressive:hover {
 .menu-card-icon {
     margin-top: 5vh;
     height: 18vh;
-// }
+}
 
 .menu-card-bottom {
     margin-top: 2vh;
@@ -872,6 +872,7 @@ nav .impressive:hover {
     background-color: var(--neutral-color-dark);
     border-top-left-radius: var(--default-border-radius);
     text-decoration: dashed underline var(--neutral-color-light) 1px;
+    width: 80%;
 }
 .package-card-list .package-card .header .remove {
     color: var(--dark-color);
@@ -986,6 +987,7 @@ nav .impressive:hover {
     background-color: transparent;
     border: none;
     outline: none;
+    width: 80%;
 }
 .package-theme-item .theme-edit {
     display: flex;
@@ -1019,6 +1021,21 @@ nav .impressive:hover {
 .package-theme-item .theme-remove:hover {
     color: var(--accent-red);
 }
+
+/* ERROR POPUP */
+.error-popup {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+
+    width: 100%;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+}
+
 
 /* MODIFIERS */
 

@@ -353,6 +353,41 @@ impl PackageResource {
                             }
                             QuestionContent::Empty => (),
                         }
+
+                        match &item.answer_content {
+                            AnswerContent::Text { text } => {}
+                            AnswerContent::Picture { picture_src } => {
+                                zip.start_file(&*picture_src, options);
+                                zip.write(
+                                    answers
+                                        .get(&Question::Normal(round_idx, theme_idx, question_idx))
+                                        .unwrap(),
+                                )
+                                .unwrap();
+                            }
+                            AnswerContent::Sound {
+                                sound_src,
+                                cover_src,
+                            } => {
+                                zip.start_file(&*sound_src, options);
+                                zip.write(
+                                    answers
+                                        .get(&Question::Normal(round_idx, theme_idx, question_idx))
+                                        .unwrap(),
+                                )
+                                .unwrap();
+                            }
+                            AnswerContent::Video { video_src } => {
+                                zip.start_file(&*video_src, options);
+                                zip.write(
+                                    answers
+                                        .get(&Question::Normal(round_idx, theme_idx, question_idx))
+                                        .unwrap(),
+                                )
+                                .unwrap();
+                            }
+                            AnswerContent::Empty => (),
+                        }
                     }
                 }
             }

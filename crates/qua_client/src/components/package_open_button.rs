@@ -14,7 +14,7 @@ pub fn package_open_button(cx: Scope) -> Element {
             style: "display: none",
             class: "accent-focus-red",
             r#type: "file",
-            accept: ".zip, .qua",
+            accept: ".qua",
             name: "package",
             onchange: |evt| {
                 to_owned![config, questions, answers];
@@ -30,19 +30,7 @@ pub fn package_open_button(cx: Scope) -> Element {
                                 questions.write().0 = new_questions;
                                 answers.write().0 = new_answers;
 
-                                // {
-                                //     let mut questions = questions.write();
-                                //     *questions = new_questions;
-                                // }
-
-                                //{
-                                //    let mut answers = answers.write();
-                                //    *answers = new_answers;
-                                //}
-
                                 log::info!("Loaded: {:?}", file_name);
-                                // log::info!("Loaded: {:?}", toml::to_string(&*config.read()));
-                                // log::info!("Loaded: {:?}", toml::to_string(&*config.read()));
                             }
                         }
                     }

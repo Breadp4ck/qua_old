@@ -50,8 +50,11 @@ fn app(cx: Scope) -> Element {
     let prevent_reload = js_sys::Function::new_no_args("return 'Are you sure?'");
     web_sys::window().unwrap().set_onbeforeunload(Some(&prevent_reload));
 
+    use_shared_state_provider(cx, || ErrorMessage(None));
+
     cx.render(rsx! (
         Router { 
+            error_popup {}
             self::nav {}
             Route { to: "/", self::home {} }
             Route { to: "/create", self::create {} }

@@ -33,10 +33,12 @@ mod package_round_card;
 mod package_round_card_list;
 mod package_save_button;
 mod package_theme_item;
+mod error_popup;
 
 pub(crate) mod prelude {
     pub use super::*;
 
+    pub use super::error_popup::*;
     pub use super::create_room_form::*;
     pub use super::game_answer_button::*;
     pub use super::game_begin_button::*;

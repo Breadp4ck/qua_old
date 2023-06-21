@@ -62,7 +62,7 @@ pub fn create_room_form(cx: Scope) -> Element {
                     input {
                         class: "accent-focus-red",
                         r#type: "file",
-                        accept: ".zip, .qua",
+                        accept: ".qua",
                         name: "package",
                         onchange: |evt| {
                             to_owned![package];
