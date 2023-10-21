@@ -27,21 +27,27 @@ pub fn create_room_form(cx: Scope) -> Element {
         cx.spawn({
             async move {
                 let archive_file: Vec<u8> = package.read().to_vec();
-                let package_resource = PackageResource::new(&archive_file);
 
-                let room_code = RoomService::create_room(archive_file).await;
-                let ticket = RoomService::obtain_ticket(
-                    Person::Host(Host::with_name(PersonName::new(&username))),
-                    room_code.clone(),
-                )
-                .await;
+                match PackageResource::new(&archive_file) {
+                    Ok(package_resource) => {
+                        let room_code = RoomService::create_room(archive_file).await;
+                        let ticket = RoomService::obtain_ticket(
+                            Person::Host(Host::with_name(PersonName::new(&username))),
+                            room_code.clone(),
+                        )
+                        .await;
 
-                set_ticket(Some(ticket));
-                set_person_type(PersonType::Host);
-                set_room_code(Some(room_code));
-                set_package_resource(Some(Arc::new(Mutex::new(package_resource))));
+                        set_ticket(Some(ticket));
+                        set_person_type(PersonType::Host);
+                        set_room_code(Some(room_code));
+                        set_package_resource(Some(Arc::new(Mutex::new(package_resource))));
 
-                obtain_room_code.set(true);
+                        obtain_room_code.set(true);
+                    }
+                    Err(err) => {
+                        log::error!("{:?}", err);                    
+                    }
+                }
             }
         });
     };

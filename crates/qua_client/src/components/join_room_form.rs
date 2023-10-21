@@ -34,14 +34,20 @@ pub fn join_room_form(cx: Scope) -> Element {
                 .await;
 
                 let archive_file = RoomService::get_room_package(&room_code).await;
-                let package_resource = PackageResource::new(&archive_file);
 
-                set_ticket(Some(ticket));
-                set_person_type(PersonType::Player);
-                set_room_code(Some(room_code));
-                set_package_resource(Some(Arc::new(Mutex::new(package_resource))));
+                match PackageResource::new(&archive_file) {
+                    Ok(package_resource) => {
+                        set_ticket(Some(ticket));
+                        set_person_type(PersonType::Player);
+                        set_room_code(Some(room_code));
+                        set_package_resource(Some(Arc::new(Mutex::new(package_resource))));
 
-                obtain_room_code.set(true);
+                        obtain_room_code.set(true);
+                    }
+                    Err(err) => {
+                        log::error!("{:?}", err);
+                    }
+                }
             }
         });
     };

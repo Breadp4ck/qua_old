@@ -39,16 +39,19 @@ pub struct PackageResource {
 }
 
 impl PackageResource {
-    pub fn new(binary_data: &[u8]) -> Self {
-        let mut zip = zip::ZipArchive::new(Cursor::new(binary_data)).unwrap();
+    pub fn new(binary_data: &[u8]) -> Result<Self, String> {
+        let mut zip = zip::ZipArchive::new(Cursor::new(binary_data))
+            .map_err(|_| "Could not create ZipArchive".to_string())?;
 
         let config = if let Ok(mut config) = zip.by_name("Pack.toml") {
             let mut config_string = String::new();
-            config.read_to_string(&mut config_string).unwrap();
+            config
+                .read_to_string(&mut config_string)
+                .map_err(|err| err.to_string())?;
 
-            PackageConfig::from_toml(&config_string) // TODO: result
+            PackageConfig::from_toml(&config_string)
         } else {
-            panic!("Could not find Pack.toml") // TODO: error: Pack.toml not found
+            return Err("Could not find Pack.toml".into());
         };
 
         let mut urls: HashMap<Question, (ResourceContent, ResourceContent)> = HashMap::new();
@@ -112,27 +115,33 @@ impl PackageResource {
             }
         }
 
-        Self { config, urls }
+        Ok(Self { config, urls })
     }
 
     pub fn new_as_parts(
         binary_data: &[u8],
-    ) -> (
-        PackageConfig,
-        HashMap<Question, Vec<u8>>,
-        HashMap<Question, Vec<u8>>,
-    ) {
+    ) -> (Result<
+        (
+            PackageConfig,
+            HashMap<Question, Vec<u8>>,
+            HashMap<Question, Vec<u8>>,
+        ),
+        String,
+    >) {
         let mut questions: HashMap<Question, Vec<u8>> = HashMap::new();
         let mut answers: HashMap<Question, Vec<u8>> = HashMap::new();
-        let mut zip = zip::ZipArchive::new(Cursor::new(binary_data)).unwrap();
+        let mut zip = zip::ZipArchive::new(Cursor::new(binary_data))
+            .map_err(|_| "Could not create ZipArchive".to_string())?;
 
         let config = if let Ok(mut config) = zip.by_name("Pack.toml") {
             let mut config_string = String::new();
-            config.read_to_string(&mut config_string).unwrap();
+            config
+                .read_to_string(&mut config_string)
+                .map_err(|err| err.to_string())?;
 
-            PackageConfig::from_toml(&config_string) // TODO: result
+            PackageConfig::from_toml(&config_string)
         } else {
-            panic!("Could not find Pack.toml") // TODO: error: Pack.toml not found
+            return Err("Could not find Pack.toml".into());
         };
 
         let mut urls: HashMap<Question, (ResourceContent, ResourceContent)> = HashMap::new();
@@ -147,7 +156,8 @@ impl PackageResource {
                             let mut data = vec![];
                             file.read_to_end(&mut data).unwrap();
 
-                            questions.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                            questions
+                                .insert(Question::Normal(round_idx, theme_idx, question_idx), data);
                         }
                         QuestionContent::Sound {
                             sound_src,
@@ -157,14 +167,16 @@ impl PackageResource {
                             let mut data = vec![];
                             file.read_to_end(&mut data).unwrap();
 
-                            questions.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                            questions
+                                .insert(Question::Normal(round_idx, theme_idx, question_idx), data);
                         }
                         QuestionContent::Video { video_src } => {
                             let mut file = zip.by_name(&video_src).unwrap();
                             let mut data = vec![];
                             file.read_to_end(&mut data).unwrap();
 
-                            questions.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                            questions
+                                .insert(Question::Normal(round_idx, theme_idx, question_idx), data);
                         }
                         QuestionContent::Empty => (),
                     };
@@ -176,7 +188,8 @@ impl PackageResource {
                             let mut data = vec![];
                             file.read_to_end(&mut data).unwrap();
 
-                            answers.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                            answers
+                                .insert(Question::Normal(round_idx, theme_idx, question_idx), data);
                         }
                         AnswerContent::Sound {
                             sound_src,
@@ -186,14 +199,16 @@ impl PackageResource {
                             let mut data = vec![];
                             file.read_to_end(&mut data).unwrap();
 
-                            answers.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                            answers
+                                .insert(Question::Normal(round_idx, theme_idx, question_idx), data);
                         }
                         AnswerContent::Video { video_src } => {
                             let mut file = zip.by_name(&video_src).unwrap();
                             let mut data = vec![];
                             file.read_to_end(&mut data).unwrap();
 
-                            answers.insert(Question::Normal(round_idx, theme_idx, question_idx), data);
+                            answers
+                                .insert(Question::Normal(round_idx, theme_idx, question_idx), data);
                         }
                         AnswerContent::Empty => (),
                     };
@@ -201,7 +216,7 @@ impl PackageResource {
             }
         }
 
-        (config, questions, answers)
+        Ok((config, questions, answers))
     }
 
     fn create_url(mut file: ZipFile) -> String {
@@ -228,6 +243,9 @@ impl PackageResource {
             }
             "jpg" | "jpeg" => {
                 properties.type_("image/jpeg");
+            }
+            "svg" => {
+                properties.type_("image/svg+xml");
             }
             "txt" => {
                 properties.type_("text/plain");

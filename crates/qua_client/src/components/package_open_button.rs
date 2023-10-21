@@ -24,7 +24,7 @@ pub fn package_open_button(cx: Scope) -> Element {
                         let files = file_engine.files();
                         for file_name in &files {
                             if let Some(file) = file_engine.read_file(file_name).await {
-                                let (new_config, new_questions, new_answers) = PackageResource::new_as_parts(&file);
+                                let (new_config, new_questions, new_answers) = PackageResource::new_as_parts(&file).unwrap();
 
                                 *config.write() = new_config;
                                 questions.write().0 = new_questions;

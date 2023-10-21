@@ -534,7 +534,6 @@ pub fn package_question_card(cx: Scope<PackageQuestionItemProps>) -> Element {
                             input {
                                 onchange: load_answer_file,
                                 r#type: "file",
-                                value: "{picture_src.clone()}"
                             }
                         },
                         AnswerContent::Sound { sound_src, cover_src } => rsx! {
